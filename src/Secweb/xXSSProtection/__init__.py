@@ -1,0 +1,1 @@
+from .xXSSProtectionMiddleware import xXSSProtection

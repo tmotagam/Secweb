@@ -1,0 +1,1 @@
+from .StrictTransportSecurityMiddleware import HSTS
