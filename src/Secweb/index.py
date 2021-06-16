@@ -17,6 +17,7 @@ from .ReferrerPolicy.ReferrerPolicyMiddleware import ReferrerPolicy
 from .OriginAgentCluster.OriginAgentClusterMiddleware import OriginAgentCluster
 from .ExpectCt.ExpectCtMiddleware import ExpectCt
 from .ContentSecurityPolicy.ContentSecurityPolicyMiddleware import ContentSecurityPolicy
+from .PermissionsPolicy.PermissionsPolicyMiddleware import PermissionsPolicy
 
 
 class SecWeb():
@@ -51,6 +52,8 @@ class SecWeb():
         'xss' for xXSSProtection
 
         'xframe' for XFrame
+
+        'PermissionPolicy' for PermissionPoilcy
 
     This Values are for Option parameter'''
     def __init__(self, app: ASGIApp, Option: dict = {}, script_nonce: bool = False, style_nonce: bool = False) -> None:
@@ -110,3 +113,8 @@ class SecWeb():
                 app.add_middleware(XFrame, Option=Option['xframe'])
             else:
                 app.add_middleware(XFrame)
+            
+            if 'PermissionPolicy' in Option.keys():
+                app.add_middleware(PermissionsPolicy, Option=Option['PermissionPolicy'])
+            else:
+                raise SyntaxError('Option cannot be empty for Permission-Policy to be applied')

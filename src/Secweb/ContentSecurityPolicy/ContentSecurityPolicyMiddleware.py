@@ -44,13 +44,14 @@ class ContentSecurityPolicy(BaseHTTPMiddleware):
     script_nonce=False This is the nonce flag for script
 
     style_nocne=True This is the nonce flag for style css'''
+
     def __init__(self, app: ASGIApp, script_nonce: bool = False, style_nonce: bool = False, Option: dict = {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}) -> None:
         super().__init__(app)
         self.Option = Option
         self.script_nonce = script_nonce
         self.style_nonce = style_nonce
         self.PolicyString = ''
-        self.Policy = ['child-src', 'connect-src', 'default-src', 'font-src', 'frame-src', 'img-src', 'manifest-src', 'media-src', 'object-src', 'prefetch-src', 'script-src', 'script-src-elem', 'script-src-attr', 'style-src', 'style-src-elem', 'style-src-attr', 'worker-src', 'base-uri', 'plugin-types', 'sandbox', 'form-action', 'frame-ancestors', 'navigate-to', 'report-uri', 'report-to', 'block-all-mixed-content', 'require-sri-for', 'require-trusted-types-for', 'trusted-types', 'upgrade-insecure-requests', 'nonce']
+        self.Policy = ['child-src', 'connect-src', 'default-src', 'font-src', 'frame-src', 'img-src', 'manifest-src', 'media-src', 'object-src', 'prefetch-src', 'script-src', 'script-src-elem', 'script-src-attr', 'style-src', 'style-src-elem', 'style-src-attr', 'worker-src', 'base-uri', 'plugin-types', 'sandbox', 'form-action', 'frame-ancestors', 'navigate-to', 'report-uri', 'report-to', 'block-all-mixed-content', 'require-sri-for', 'require-trusted-types-for', 'trusted-types', 'upgrade-insecure-requests']
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         response = await call_next(request)
@@ -106,4 +107,4 @@ class ContentSecurityPolicy(BaseHTTPMiddleware):
                     else:
                         self.PolicyString += ' '
             else:
-                raise SyntaxError(f'The Policy { keys[i] } does not exist')
+                raise SyntaxError(f'The Policy { keys[i] } does not exists')
