@@ -1,11 +1,13 @@
-<p align = "center"><img alt="Secweb logo" src="Secweb.jpg"></p>
+<p align = "center"><img alt="Secweb logo" src="https://raw.githubusercontent.com/tmotagam/Secweb/main/Secweb.jpg"></p>
 
 <p align="center"><em>Secweb helps in setting security headers for FastApi and Starlette</em></p>
 
 ---
 <br>
 
-Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 11 middlewares for setting headers of your website and also for your api`s
+## :warning: This is a Dev Version Readme.
+
+Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 12 middlewares for setting headers of your website and also for your api`s
 
 The list of middleware is as follows:
 
@@ -40,6 +42,9 @@ The list of middleware is as follows:
 <br>
 
 11. X-XSS-Protection
+<br>
+
+12. Permissions Policy
 
 ## Requirements
 
@@ -49,16 +54,18 @@ The list of middleware is as follows:
 
 ## Installation
 
+To install the dev version of the Secweb you have to download the .whl file from build directory in this branch and install the Secweb
+
 ```powershell
-pip install Secweb
+pip install Secweb_dev-1.0.0-py3-none-any.whl
 ```
 ## Usage
 The package Secweb can be used in two different ways
 
-1. To use SecWeb class it includes all the 11 classes together
+1. To use SecWeb class it includes all the 12 classes together
 <br>
 
-2. To use the 11 middleware classes separately
+2. To use the 12 middleware classes separately
 <br>
 
 ### SecWeb class
@@ -75,7 +82,7 @@ from Secweb import SecWeb
 
 SecWeb(app=app, Option={'referrer': {'Referrer-Policy': 'no-referrer'}}, script_nonce=False, style_nonce=False)
 ```
-The Option uses 8 keys for calling middleware classes to set the user-defined policies. 3 middleware classes doesn`t take any values.
+The Option uses 9 keys for calling middleware classes to set the user-defined policies. 3 middleware classes doesn`t take any values.
 
 The values are as follows:
 
@@ -101,10 +108,13 @@ The values are as follows:
 <br>
 
 8. `'xframe'` for calling XFrame class to set the user-defined values
+<br>
+
+9. `'PermissionPolicy'` for calling the PermissionsPolicy class to set the user-defined values
 
 ```python
 # Example of the values
-SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'xss': {'X-XSS-Protection': '1; mode=block'}, 'hsts': {'max-age': 4, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'expectCt': {'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"}})
+SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'xss': {'X-XSS-Protection': '1; mode=block'}, 'hsts': {'max-age': 4, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'expectCt': {'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"}, 'PermissionPolicy': {'accelerometer': ['self', '"https://example.com/"'], 'document-domain': ['*']'}})
 ```
 ### Middleware Classes
 
@@ -395,8 +405,33 @@ app.add_middleware(xXSSProtection, Option={'X-XSS-Protection': '0'})
 ```
 For more detail on X-XSS-Protection header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection)
 
+#### Permissions Policy
+
+PermissionsPolicy class sets the Permissions Policy header
+
+You have to call the PermissionsPolicy class explicitly by providing the Option dictionary it does not have a default value
+
+```python
+from fastapi import FastAPI
+from Secweb.PermissionsPolicy import PermissionsPolicy
+
+app = FastAPI()
+
+app.add_middleware(PermissionsPolicy, Option={'accelerometer': ['self', '"https://example.com/"'], 'camera': [], 'display-capture': [], 'document-domain': ['self']'})
+
+# OR
+
+from starlette.applications import Starlette
+from Secweb.PermissionsPolicy import PermissionsPolicy
+
+app = Starlette()
+
+app.add_middleware(PermissionsPolicy, Option={'accelerometer': ['self', '"https://example.com/"'], 'camera': [], 'display-capture': [], 'document-domain': ['self']'})
+```
+For more detail on Permissions Policy header go to this [W3C Page](https://www.w3.org/TR/permissions-policy-1/)
+
 ## Contributing
-Pull requests and Issues are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Please open an issue or Pull Request (PR) for any Errors/issues in this dev version.
 
 Please make sure to update tests as appropriate.
 
