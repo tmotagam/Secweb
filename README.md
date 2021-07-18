@@ -7,6 +7,8 @@
 
 Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 11 middlewares for setting headers of your website and also for your api`s
 
+## Note: Permission-Policy is in the dev branch you can find the wheel in the build directory
+
 The list of middleware is as follows:
 
 1. Content Security Policy (CSP)
