@@ -1,13 +1,13 @@
-<p align = "center"><img alt="Secweb logo" src="Secweb.jpg"></p>
+<p align = "center"><img alt="Secweb logo" src="https://raw.githubusercontent.com/tmotagam/Secweb/main/Secweb.jpg"></p>
 
 <p align="center"><em>Secweb helps in setting security headers for FastApi and Starlette</em></p>
 
 ---
 <br>
 
-Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 11 middlewares for setting headers of your website and also for your api`s
+Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 14 middlewares for setting headers of your website and also for your api`s
 
-## Note: Permission-Policy is in the dev branch you can find the wheel in the build directory
+#### The PermissionsPolicy middleware lies in development branch [here](https://github.com/tmotagam/Secweb/tree/Secweb-Beta#readme)
 
 The list of middleware is as follows:
 
@@ -42,6 +42,15 @@ The list of middleware is as follows:
 <br>
 
 11. X-XSS-Protection
+<br>
+
+12. Cross-Origin-Embedder-Policy
+<br>
+
+13. Cross-Origin-Opener-Policy
+<br>
+
+14. Cross-Origin-Resource-Policy
 
 ## Requirements
 
@@ -57,10 +66,10 @@ pip install Secweb
 ## Usage
 The package Secweb can be used in two different ways
 
-1. To use SecWeb class it includes all the 11 classes together
+1. To use SecWeb class it includes all the 14 classes together
 <br>
 
-2. To use the 11 middleware classes separately
+2. To use the 14 middleware classes separately
 <br>
 
 ### SecWeb class
@@ -77,7 +86,7 @@ from Secweb import SecWeb
 
 SecWeb(app=app, Option={'referrer': {'Referrer-Policy': 'no-referrer'}}, script_nonce=False, style_nonce=False)
 ```
-The Option uses 8 keys for calling middleware classes to set the user-defined policies. 3 middleware classes doesn`t take any values.
+The Option uses 11 keys for calling middleware classes to set the user-defined policies. 3 middleware classes doesn`t take any values.
 
 The values are as follows:
 
@@ -103,10 +112,19 @@ The values are as follows:
 <br>
 
 8. `'xframe'` for calling XFrame class to set the user-defined values
+<br>
+
+9. `'coep'` for calling CrossOriginEmbedderPolicy class to set the user-defined values
+<br>
+
+10. `'coop'` for calling CrossOriginOpenerPolicy class to set the user-defined values
+<br>
+
+11. `'corp'` for calling CrossOriginResourcePolicy class to set the user-defined values
 
 ```python
 # Example of the values
-SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'xss': {'X-XSS-Protection': '1; mode=block'}, 'hsts': {'max-age': 4, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'expectCt': {'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"}})
+SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'xss': {'X-XSS-Protection': '1; mode=block'}, 'hsts': {'max-age': 4, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'expectCt': {'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"}, 'coep': {'Cross-Origin-Embedder-Policy': 'require-corp'}, 'coop': {'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'}, 'corp': {'Cross-Origin-Resource-Policy': 'same-site'}})
 ```
 ### Middleware Classes
 
@@ -397,12 +415,85 @@ app.add_middleware(xXSSProtection, Option={'X-XSS-Protection': '0'})
 ```
 For more detail on X-XSS-Protection header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection)
 
+#### Cross Origin Embedder Policy
+
+CrossOriginEmbedderPolicy class sets the Cross Origin Embedder Policy header
+
+```python
+from fastapi import FastAPI
+from Secweb.CrossOriginEmbedderPolicy import CrossOriginEmbedderPolicy
+
+app = FastAPI()
+
+app.add_middleware(CrossOriginEmbedderPolicy, Option={'Cross-Origin-Embedder-Policy': 'unsafe-none'})
+
+# OR
+
+from starlette.applications import Starlette
+from Secweb.CrossOriginEmbedderPolicy import CrossOriginEmbedderPolicy
+
+app = Starlette()
+
+app.add_middleware(CrossOriginEmbedderPolicy, Option={'Cross-Origin-Embedder-Policy': 'unsafe-none'})
+```
+For more detail on Cross Origin Embedder Policy header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy)
+
+#### Cross Origin Opener Policy
+
+CrossOriginOpenerPolicy class sets the Cross Origin Opener Policy header
+
+```python
+from fastapi import FastAPI
+from Secweb.CrossOriginOpenerPolicy import CrossOriginOpenerPolicy
+
+app = FastAPI()
+
+app.add_middleware(CrossOriginOpenerPolicy, Option={'Cross-Origin-Opener-Policy': 'unsafe-none'})
+
+# OR
+
+from starlette.applications import Starlette
+from Secweb.CrossOriginOpenerPolicy import CrossOriginOpenerPolicy
+
+app = Starlette()
+
+app.add_middleware(CrossOriginOpenerPolicy, Option={'Cross-Origin-Opener-Policy': 'unsafe-none'})
+```
+For more detail on Cross Origin Opener Policy header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy)
+
+#### Cross Origin Resource Policy
+
+CrossOriginResourcePolicy class sets the Cross Origin Resource Policy header
+
+```python
+from fastapi import FastAPI
+from Secweb.CrossOriginResourcePolicy import CrossOriginResourcePolicy
+
+app = FastAPI()
+
+app.add_middleware(CrossOriginResourcePolicy, Option={'Cross-Origin-Resource-Policy': 'same-site'})
+
+# OR
+
+from starlette.applications import Starlette
+from Secweb.CrossOriginResourcePolicy import CrossOriginResourcePolicy
+
+app = Starlette()
+
+app.add_middleware(CrossOriginResourcePolicy, Option={'Cross-Origin-Resource-Policy': 'same-site'})
+```
+For more detail on Cross Origin Resource Policy header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy)
+
 ## Contributing
 Pull requests and Issues are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-Please make sure to update tests as appropriate.
+<br>
 
 [Github](https://github.com/tmotagam/Secweb)
 
 ## License
 [MLP 2.0](https://www.mozilla.org/en-US/MPL/2.0/)
+
+## Secweb Icon
+
+[Secweb Icon](https://github.com/tmotagam/Secweb/blob/main/Secweb.jpg) © 2021 by [Motagamwala Taha Arif Ali](https://github.com/tmotagam) is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1)

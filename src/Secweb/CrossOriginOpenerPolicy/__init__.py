@@ -1,0 +1,1 @@
+from .CrossOriginOpenerPolicyMiddleware import CrossOriginOpenerPolicy
