@@ -18,6 +18,9 @@ from .OriginAgentCluster.OriginAgentClusterMiddleware import OriginAgentCluster
 from .ExpectCt.ExpectCtMiddleware import ExpectCt
 from .ContentSecurityPolicy.ContentSecurityPolicyMiddleware import ContentSecurityPolicy
 from .PermissionsPolicy.PermissionsPolicyMiddleware import PermissionsPolicy
+from .CrossOriginEmbedderPolicy.CrossOriginEmbedderPolicyMiddleware import CrossOriginEmbedderPolicy
+from .CrossOriginOpenerPolicy.CrossOriginOpenerPolicyMiddleware import CrossOriginOpenerPolicy
+from .CrossOriginResourcePolicy.CrossOriginResourcePolicyMiddleware import CrossOriginResourcePolicy
 
 
 class SecWeb():
@@ -55,6 +58,12 @@ class SecWeb():
 
         'PermissionPolicy' for PermissionPoilcy
 
+        'coep' for CrossOriginEmbedderPolicy
+
+        'coop' for CrossOriginOpenerPolicy
+
+        'corp' for CrossOriginResourcePolicy
+
     This Values are for Option parameter'''
     def __init__(self, app: ASGIApp, Option: dict = {}, script_nonce: bool = False, style_nonce: bool = False) -> None:
         if not Option:
@@ -68,6 +77,9 @@ class SecWeb():
             app.add_middleware(ReferrerPolicy)
             app.add_middleware(OriginAgentCluster)
             app.add_middleware(ExpectCt)
+            app.add_middleware(CrossOriginEmbedderPolicy)
+            app.add_middleware(CrossOriginOpenerPolicy)
+            app.add_middleware(CrossOriginResourcePolicy)
             app.add_middleware(ContentSecurityPolicy, script_nonce=script_nonce, style_nonce=style_nonce)
         else:
             app.add_middleware(XDownloadOptions)
@@ -118,3 +130,18 @@ class SecWeb():
                 app.add_middleware(PermissionsPolicy, Option=Option['PermissionPolicy'])
             else:
                 raise SyntaxError('Option cannot be empty for Permission-Policy to be applied')
+            
+            if 'coep' in Option.keys():
+                app.add_middleware(CrossOriginEmbedderPolicy, Option=Option['coep'])
+            else:
+                app.add_middleware(CrossOriginEmbedderPolicy)
+            
+            if 'coop' in Option.keys():
+                app.add_middleware(CrossOriginOpenerPolicy, Option=Option['coop'])
+            else:
+                app.add_middleware(CrossOriginOpenerPolicy)
+            
+            if 'corp' in Option.keys():
+                app.add_middleware(CrossOriginResourcePolicy, Option=Option['corp'])
+            else:
+                app.add_middleware(CrossOriginResourcePolicy)

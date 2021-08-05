@@ -7,44 +7,67 @@
 
 ## :warning: This is a Dev Version Readme.
 
-Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 12 middlewares for setting headers of your website and also for your api`s
+Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 15 middlewares for setting headers of your website and also for your api`s
 
 The list of middleware is as follows:
 
 1. Content Security Policy (CSP)
+
 <br>
 
 2. ExpectCT
+
 <br>
 
 3. Origin Agent Cluster
+
 <br>
 
 4. Referrer Policy
+
 <br>
 
 5. HTTP Strict Transport Security(HSTS)
+
 <br>
 
 6. X-Content-Type-Options
+
 <br>
 
 7. X-DNS-Prefetch-Control
+
 <br>
 
 8. X-Download-Options
+
 <br>
 
 9. X-Frame
+
 <br>
 
 10. X-Permitted-Cross-Domain-Policies
+
 <br>
 
 11. X-XSS-Protection
+
 <br>
 
 12. Permissions Policy
+
+<br>
+
+13. Cross-Origin-Embedder-Policy
+
+<br>
+
+14. Cross-Origin-Opener-Policy
+
+<br>
+
+15. Cross-Origin-Resource-Policy
 
 ## Requirements
 
@@ -57,15 +80,15 @@ The list of middleware is as follows:
 To install the dev version of the Secweb you have to download the .whl file from build directory in this branch and install the Secweb
 
 ```powershell
-pip install Secweb_dev-1.0.0-py3-none-any.whl
+pip install Secweb_dev-1.3.0-py3-none-any.whl
 ```
 ## Usage
 The package Secweb can be used in two different ways
 
-1. To use SecWeb class it includes all the 12 classes together
+1. To use SecWeb class it includes all the 15 classes together
 <br>
 
-2. To use the 12 middleware classes separately
+2. To use the 15 middleware classes separately
 <br>
 
 ### SecWeb class
@@ -82,7 +105,7 @@ from Secweb import SecWeb
 
 SecWeb(app=app, Option={'referrer': {'Referrer-Policy': 'no-referrer'}}, script_nonce=False, style_nonce=False)
 ```
-The Option uses 9 keys for calling middleware classes to set the user-defined policies. 3 middleware classes doesn`t take any values.
+The Option uses 12 keys for calling middleware classes to set the user-defined policies. 3 middleware classes doesn`t take any values.
 
 The values are as follows:
 
@@ -111,10 +134,19 @@ The values are as follows:
 <br>
 
 9. `'PermissionPolicy'` for calling the PermissionsPolicy class to set the user-defined values
+<br>
+
+10. `'coep'` for calling CrossOriginEmbedderPolicy class to set the user-defined values
+<br>
+
+11. `'coop'` for calling CrossOriginOpenerPolicy class to set the user-defined values
+<br>
+
+12. `'corp'` for calling CrossOriginResourcePolicy class to set the user-defined values
 
 ```python
 # Example of the values
-SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'xss': {'X-XSS-Protection': '1; mode=block'}, 'hsts': {'max-age': 4, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'expectCt': {'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"}, 'PermissionPolicy': {'accelerometer': ['self', '"https://example.com/"'], 'document-domain': ['*']'}})
+SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'xss': {'X-XSS-Protection': '1; mode=block'}, 'hsts': {'max-age': 4, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'expectCt': {'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"}, 'PermissionPolicy': {'accelerometer': ['self', '"https://example.com/"'], 'document-domain': ['*']}, 'coep': {'Cross-Origin-Embedder-Policy': 'require-corp'}, 'coop': {'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'}, 'corp': {'Cross-Origin-Resource-Policy': 'same-site'}})
 ```
 ### Middleware Classes
 
@@ -430,12 +462,85 @@ app.add_middleware(PermissionsPolicy, Option={'accelerometer': ['self', '"https:
 ```
 For more detail on Permissions Policy header go to this [W3C Page](https://www.w3.org/TR/permissions-policy-1/)
 
+#### Cross Origin Embedder Policy
+
+CrossOriginEmbedderPolicy class sets the Cross Origin Embedder Policy header
+
+```python
+from fastapi import FastAPI
+from Secweb.CrossOriginEmbedderPolicy import CrossOriginEmbedderPolicy
+
+app = FastAPI()
+
+app.add_middleware(CrossOriginEmbedderPolicy, Option={'Cross-Origin-Embedder-Policy': 'unsafe-none'})
+
+# OR
+
+from starlette.applications import Starlette
+from Secweb.CrossOriginEmbedderPolicy import CrossOriginEmbedderPolicy
+
+app = Starlette()
+
+app.add_middleware(CrossOriginEmbedderPolicy, Option={'Cross-Origin-Embedder-Policy': 'unsafe-none'})
+```
+For more detail on Cross Origin Embedder Policy header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy)
+
+#### Cross Origin Opener Policy
+
+CrossOriginOpenerPolicy class sets the Cross Origin Opener Policy header
+
+```python
+from fastapi import FastAPI
+from Secweb.CrossOriginOpenerPolicy import CrossOriginOpenerPolicy
+
+app = FastAPI()
+
+app.add_middleware(CrossOriginOpenerPolicy, Option={'Cross-Origin-Opener-Policy': 'unsafe-none'})
+
+# OR
+
+from starlette.applications import Starlette
+from Secweb.CrossOriginOpenerPolicy import CrossOriginOpenerPolicy
+
+app = Starlette()
+
+app.add_middleware(CrossOriginOpenerPolicy, Option={'Cross-Origin-Opener-Policy': 'unsafe-none'})
+```
+For more detail on Cross Origin Opener Policy header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy)
+
+#### Cross Origin Resource Policy
+
+CrossOriginResourcePolicy class sets the Cross Origin Resource Policy header
+
+```python
+from fastapi import FastAPI
+from Secweb.CrossOriginResourcePolicy import CrossOriginResourcePolicy
+
+app = FastAPI()
+
+app.add_middleware(CrossOriginResourcePolicy, Option={'Cross-Origin-Resource-Policy': 'same-site'})
+
+# OR
+
+from starlette.applications import Starlette
+from Secweb.CrossOriginResourcePolicy import CrossOriginResourcePolicy
+
+app = Starlette()
+
+app.add_middleware(CrossOriginResourcePolicy, Option={'Cross-Origin-Resource-Policy': 'same-site'})
+```
+For more detail on Cross Origin Resource Policy header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy)
+
 ## Contributing
 Please open an issue or Pull Request (PR) for any Errors/issues in this dev version.
 
-Please make sure to update tests as appropriate.
+<br>
 
 [Github](https://github.com/tmotagam/Secweb)
 
 ## License
 [MLP 2.0](https://www.mozilla.org/en-US/MPL/2.0/)
+
+## Secweb Icon
+
+[Secweb Icon](https://github.com/tmotagam/Secweb/blob/main/Secweb.jpg) © 2021 by [Motagamwala Taha Arif Ali](https://github.com/tmotagam) is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1)
