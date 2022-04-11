@@ -2,7 +2,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021, Motagamwala Taha Arif Ali '''
+  Copyright 2022, Motagamwala Taha Arif Ali '''
 
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
@@ -64,14 +64,14 @@ class ContentSecurityPolicy(BaseHTTPMiddleware):
         keys = list(self.Option.keys())
 
         if self.script_nonce is True:
-            if not keys.index('script-src'):
+            if keys.index('script-src') is None:
                 raise SyntaxError('script-src is compulsory for nonce')
 
             if len(self.Option['script-src']) == 0:
                 raise SyntaxError('script-src cannot be empty for nonce to be applied')
 
         if self.style_nonce is True:
-            if not keys.index('style-src'):
+            if keys.index('style-src') is None:
                 raise SyntaxError('style-src is compulsory for nonce')
 
             if len(self.Option['style-src']) == 0:

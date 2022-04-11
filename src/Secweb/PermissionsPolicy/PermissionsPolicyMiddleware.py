@@ -2,7 +2,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021, Motagamwala Taha Arif Ali '''
+  Copyright 2022, Motagamwala Taha Arif Ali '''
 
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
@@ -27,7 +27,7 @@ class PermissionsPolicy(BaseHTTPMiddleware):
         super().__init__(app)
         self.Option = Option
         self.PolicyString = ''
-        self.Policy = ['accelerometer', 'ambient-light-sensor', 'autoplay', 'battery', 'camera', 'display-capture', 'document-domain', 'encrypted-media', 'execution-while-not-rendered', 'execution-while-out-of-viewport', 'fullscreen', 'geolocation', 'gyroscope', 'layout-animations', 'legacy-image-formats', 'magnetometer', 'microphone', 'midi', 'navigation-override', 'oversized-images', 'payment', 'picture-in-picture', 'publickey-credentials-get', 'sync-xhr', 'usb', 'vr', 'wake-lock', 'screen-wake-lock', 'web-share', 'xr-spatial-tracking']
+        self.Policy = ['accelerometer', 'ambient-light-sensor', 'autoplay', 'battery', 'camera', 'display-capture', 'document-domain', 'encrypted-media', 'execution-while-not-rendered', 'execution-while-out-of-viewport', 'fullscreen', 'gamepad', 'geolocation', 'gyroscope', 'layout-animations', 'legacy-image-formats', 'magnetometer', 'microphone', 'midi', 'navigation-override', 'oversized-images', 'payment', 'picture-in-picture', 'publickey-credentials-get', 'speaker-selection', 'sync-xhr', 'unoptimized-images', 'unsized-media', 'usb', 'vr', 'screen-wake-lock', 'web-share', 'xr-spatial-tracking']
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         response = await call_next(request)

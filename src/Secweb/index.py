@@ -2,7 +2,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021, Motagamwala Taha Arif Ali '''
+  Copyright 2022, Motagamwala Taha Arif Ali '''
 
 from starlette.types import ASGIApp
 
@@ -18,22 +18,23 @@ from .OriginAgentCluster.OriginAgentClusterMiddleware import OriginAgentCluster
 from .ExpectCt.ExpectCtMiddleware import ExpectCt
 from .ContentSecurityPolicy.ContentSecurityPolicyMiddleware import ContentSecurityPolicy
 from .PermissionsPolicy.PermissionsPolicyMiddleware import PermissionsPolicy
-from .CrossOriginEmbedderPolicy.CrossOriginEmbedderPolicyMiddleware import CrossOriginEmbedderPolicy
-from .CrossOriginOpenerPolicy.CrossOriginOpenerPolicyMiddleware import CrossOriginOpenerPolicy
-from .CrossOriginResourcePolicy.CrossOriginResourcePolicyMiddleware import CrossOriginResourcePolicy
+from .ClearSiteData.ClearSiteDataMiddleware import ClearSiteData
+from .CacheControl.CacheControlMiddleware import CacheControl
 
 
 class SecWeb():
     ''' This Class is used for initializing all the middlewares CSP, ExceptCt, etc
 
     Example :
-        SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}}, script_nonce=False, style_nonce=False)
+        SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}}, Routes=[], script_nonce=False, style_nonce=False)
 
     Parameters :
 
      app=YourappName This is the compulsory parameter
 
      Option={} This is a dictionary and not compulsory option
+
+     Routes=[] This is a list of routes for Clear-Site-Data header and a compulsory option if you want to use the header
 
      script_nonce=False This is an optional flag it will set nonce for your inline Js script
 
@@ -58,14 +59,12 @@ class SecWeb():
 
         'PermissionPolicy' for PermissionPoilcy
 
-        'coep' for CrossOriginEmbedderPolicy
+        'clearSiteData' for Clear-Site-Data
 
-        'coop' for CrossOriginOpenerPolicy
-
-        'corp' for CrossOriginResourcePolicy
+        'cacheControl' for Cache-Control
 
     This Values are for Option parameter'''
-    def __init__(self, app: ASGIApp, Option: dict = {}, script_nonce: bool = False, style_nonce: bool = False) -> None:
+    def __init__(self, app: ASGIApp, Option: dict = {}, Routes: list = [], script_nonce: bool = False, style_nonce: bool = False) -> None:
         if not Option:
             app.add_middleware(XFrame)
             app.add_middleware(xXSSProtection)
@@ -77,10 +76,10 @@ class SecWeb():
             app.add_middleware(ReferrerPolicy)
             app.add_middleware(OriginAgentCluster)
             app.add_middleware(ExpectCt)
-            app.add_middleware(CrossOriginEmbedderPolicy)
-            app.add_middleware(CrossOriginOpenerPolicy)
-            app.add_middleware(CrossOriginResourcePolicy)
             app.add_middleware(ContentSecurityPolicy, script_nonce=script_nonce, style_nonce=style_nonce)
+            app.add_middleware(CacheControl)
+            if Routes.__len__() > 0:
+                app.add_middleware(ClearSiteData, Routes=Routes)
         else:
             app.add_middleware(XDownloadOptions)
             app.add_middleware(XContentTypeOptions)
@@ -128,20 +127,14 @@ class SecWeb():
             
             if 'PermissionPolicy' in Option.keys():
                 app.add_middleware(PermissionsPolicy, Option=Option['PermissionPolicy'])
-            else:
-                raise SyntaxError('Option cannot be empty for Permission-Policy to be applied')
             
-            if 'coep' in Option.keys():
-                app.add_middleware(CrossOriginEmbedderPolicy, Option=Option['coep'])
-            else:
-                app.add_middleware(CrossOriginEmbedderPolicy)
+            if 'clearSiteData' in Option.keys() and Routes.__len__() > 0:
+                app.add_middleware(ClearSiteData, Option=Option['clearSiteData'], Routes=Routes)
+
+            if Routes.__len__() > 0:
+                app.add_middleware(ClearSiteData, Routes=Routes)
             
-            if 'coop' in Option.keys():
-                app.add_middleware(CrossOriginOpenerPolicy, Option=Option['coop'])
+            if 'cacheControl' in Option.keys():
+                app.add_middleware(CacheControl, Option=Option['cacheControl'])
             else:
-                app.add_middleware(CrossOriginOpenerPolicy)
-            
-            if 'corp' in Option.keys():
-                app.add_middleware(CrossOriginResourcePolicy, Option=Option['corp'])
-            else:
-                app.add_middleware(CrossOriginResourcePolicy)
+                app.add_middleware(CacheControl)

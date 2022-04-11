@@ -2,7 +2,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021, Motagamwala Taha Arif Ali '''
+  Copyright 2022, Motagamwala Taha Arif Ali '''
 
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request

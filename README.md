@@ -7,7 +7,7 @@
 
 ## :warning: This is a Dev Version Readme.
 
-Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 15 middlewares for setting headers of your website and also for your api`s
+Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 17 middlewares for setting headers of your website and also for your api`s
 
 The list of middleware is as follows:
 
@@ -69,9 +69,17 @@ The list of middleware is as follows:
 
 15. Cross-Origin-Resource-Policy
 
+<br>
+
+16. Clear-Site-Data
+
+<br>
+
+17. Cache-Control
+
 ## Requirements
 
-* [Python >= 3.6](https://www.python.org/downloads/)
+* [Python >= 3.7](https://www.python.org/downloads/)
 
 * [Starlette](https://pypi.org/project/starlette/)
 
@@ -80,15 +88,15 @@ The list of middleware is as follows:
 To install the dev version of the Secweb you have to download the .whl file from build directory in this branch and install the Secweb
 
 ```powershell
-pip install Secweb_dev-1.3.0-py3-none-any.whl
+pip install Secweb_dev-1.5.2-py3-none-any.whl
 ```
 ## Usage
 The package Secweb can be used in two different ways
 
-1. To use SecWeb class it includes all the 15 classes together
+1. To use SecWeb class it includes all the 17 classes together
 <br>
 
-2. To use the 15 middleware classes separately
+2. To use the 17 middleware classes separately
 <br>
 
 ### SecWeb class
@@ -98,14 +106,14 @@ from Secweb import SecWeb
 
 SecWeb(app=app)  # The app is the ASGIapp required by the starlette to give access to the different methods to the class
 ```
-The above example uses all the default headers value that are are preset you can change the values by creating the option dict you can also set flags for nonce generation for csp header using the `script_nonce=True` and `style_nonce=True` flags
+The above example uses all the default headers value that are are preset you can change the values by creating the option dict you can also set flags for nonce generation for csp header using the `script_nonce=True` and `style_nonce=True` flags. For Clear-Site-Data header `Routes=[]` array has been added. It is empty by default.
 
 ```Python
 from Secweb import SecWeb
 
-SecWeb(app=app, Option={'referrer': {'Referrer-Policy': 'no-referrer'}}, script_nonce=False, style_nonce=False)
+SecWeb(app=app, Option={'referrer': {'Referrer-Policy': 'no-referrer'}}, Routes=[], script_nonce=False, style_nonce=False)
 ```
-The Option uses 12 keys for calling middleware classes to set the user-defined policies. 3 middleware classes doesn`t take any values.
+The Option uses 14 keys for calling middleware classes to set the user-defined policies. 3 middleware classes doesn`t take any values.
 
 The values are as follows:
 
@@ -143,10 +151,16 @@ The values are as follows:
 <br>
 
 12. `'corp'` for calling CrossOriginResourcePolicy class to set the user-defined values
+<br>
+
+11. `'clearSiteData'` for calling ClearSiteData class to set the user-defined values
+<br>
+
+12. `'cacheControl'` for calling CacheControl class to set the user-defined values
 
 ```python
 # Example of the values
-SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'xss': {'X-XSS-Protection': '1; mode=block'}, 'hsts': {'max-age': 4, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'expectCt': {'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"}, 'PermissionPolicy': {'accelerometer': ['self', '"https://example.com/"'], 'document-domain': ['*']}, 'coep': {'Cross-Origin-Embedder-Policy': 'require-corp'}, 'coop': {'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'}, 'corp': {'Cross-Origin-Resource-Policy': 'same-site'}})
+SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'xss': {'X-XSS-Protection': '1; mode=block'}, 'hsts': {'max-age': 4, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'expectCt': {'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"}, 'PermissionPolicy': {'accelerometer': ['self', '"https://example.com/"'], 'document-domain': ['*']}, 'coep': {'Cross-Origin-Embedder-Policy': 'require-corp'}, 'coop': {'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'}, 'corp': {'Cross-Origin-Resource-Policy': 'same-site'}, 'clearSiteData': {'cache': True, 'storage': True}, 'cacheControl': {'public': True, 's-maxage': 600}}, Routes=['/login', '/logout/{id}'])
 ```
 ### Middleware Classes
 
@@ -531,6 +545,52 @@ app.add_middleware(CrossOriginResourcePolicy, Option={'Cross-Origin-Resource-Pol
 ```
 For more detail on Cross Origin Resource Policy header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy)
 
+#### Clear Site Data
+
+ClearSiteData class sets the Clear-Site-Data header. In this class the routes array is compulsory so that the header can only be applied to the specified route as it clears every data on the users browser you can add static, dynamic routes like shown below.
+
+```python
+from fastapi import FastAPI
+from Secweb.ClearSiteData import ClearSiteData
+
+app = FastAPI()
+
+app.add_middleware(ClearSiteData, Option={'cookies': True}, Routes=['/login', '/logout/{id}'])
+
+# OR
+
+from starlette.applications import Starlette
+from Secweb.ClearSiteData import ClearSiteData
+
+app = Starlette()
+
+app.add_middleware(ClearSiteData, Option={'cookies': True}, Routes=['/login', '/logout/{id}'])
+```
+For more detail on Clear Site Data Header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Clear-Site-Data)
+
+#### Cache Control
+
+CacheControl class sets the Cache-Control header. This is useful for controlling cached data on user`s browser
+
+```python
+from fastapi import FastAPI
+from Secweb.CacheControl import CacheControl
+
+app = FastAPI()
+
+app.add_middleware(CacheControl, Option={'s-maxage': 600, 'public': True})
+
+# OR
+
+from starlette.applications import Starlette
+from Secweb.CacheControl import CacheControl
+
+app = Starlette()
+
+app.add_middleware(CacheControl, Option={'s-maxage': 600, 'public': True})
+```
+For more detail on Cache Control Header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control)
+
 ## Contributing
 Please open an issue or Pull Request (PR) for any Errors/issues in this dev version.
 
@@ -543,4 +603,4 @@ Please open an issue or Pull Request (PR) for any Errors/issues in this dev vers
 
 ## Secweb Icon
 
-[Secweb Icon](https://github.com/tmotagam/Secweb/blob/main/Secweb.jpg) © 2021 by [Motagamwala Taha Arif Ali](https://github.com/tmotagam) is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1)
+[Secweb Icon](https://github.com/tmotagam/Secweb/blob/main/Secweb.jpg) © 2021 - 2022 by [Motagamwala Taha Arif Ali](https://github.com/tmotagam) is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1)
