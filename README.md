@@ -15,7 +15,7 @@ The list of middleware is as follows:
 
 <br>
 
-2. ExpectCT
+2. ExpectCT (deprecated) :warning:
 
 <br>
 
@@ -114,7 +114,7 @@ The values are as follows:
 1. `'csp'` for calling ContentSecurityPolicy class to set the user-defined values
 <br>
 
-2. `'expectCt'` for calling ExpectCt class to set the user-defined values
+2. `'expectCt'` for calling ExpectCt class to set the user-defined values :warning:
 <br>
 
 3. `'referrer'` for calling ReferrerPolicy class to set the user-defined values
@@ -213,9 +213,9 @@ style_nonce=False This is the nonce flag for inline css
 
 For more detail on CSP header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy)
 
-#### ExpectCT
+#### ExpectCT :warning:
 
-ExpectCt class sets the ExpectCt header
+ExpectCt class sets the ExpectCt header. The default value will not work for ExpectCt class you need to explicitly set the header.
 
 ```python
 from fastapi import FastAPI
@@ -490,7 +490,7 @@ For more detail on Cross Origin Opener Policy header go to this [MDN Docs](https
 
 #### Cross Origin Resource Policy
 
-CrossOriginResourcePolicy class sets the Cross Origin Resource Policy header
+CrossOriginResourcePolicy class sets the Cross Origin Resource Policy header. You have to call the CrossOriginResourcePolicy class explicitly by providing the 'corp' key in the Option dictionary.
 
 ```python
 from fastapi import FastAPI
