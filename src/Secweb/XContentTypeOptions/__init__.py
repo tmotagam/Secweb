@@ -1,1 +1,0 @@
-from .XContentTypeOptionsMiddleware import XContentTypeOptions

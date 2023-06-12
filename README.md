@@ -7,7 +7,9 @@
 
 ## :warning: This is a Dev Version Readme.
 
-Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 17 middlewares for setting headers of your website and also for your api`s
+Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 17 middlewares for setting headers of your website and also for your api(s)
+
+Now all the middlewares are pure ASGI implemented middlewares and from now on all the release will have sigstore signatures you can get them from the github release for both dev and production Secweb.
 
 The list of middleware is as follows:
 
@@ -88,7 +90,7 @@ The list of middleware is as follows:
 To install the dev version of the Secweb you have to download the .whl file from build directory in this branch and install the Secweb
 
 ```powershell
-pip install Secweb_dev-1.6.2-py3-none-any.whl
+pip install Secweb_dev-1.7.2-py3-none-any.whl
 ```
 ## Usage
 The package Secweb can be used in two different ways
@@ -160,7 +162,7 @@ The values are as follows:
 
 ```python
 # Example of the values
-SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'xss': {'X-XSS-Protection': '1; mode=block'}, 'hsts': {'max-age': 4, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'expectCt': {'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"}, 'PermissionPolicy': {'accelerometer': ['self', '"https://example.com/"'], 'document-domain': ['*']}, 'coep': {'Cross-Origin-Embedder-Policy': 'require-corp'}, 'coop': {'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'}, 'corp': {'Cross-Origin-Resource-Policy': 'same-site'}, 'clearSiteData': {'cache': True, 'storage': True}, 'cacheControl': {'public': True, 's-maxage': 600}}, Routes=['/login', '/logout/{id}'])
+SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'xss': {'X-XSS-Protection': '1; mode=block'}, 'hsts': {'max-age': 4, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'expectCt': {'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"}, 'PermissionPolicy': {'accelerometer': ['self', '"https://example.com/"'], 'document-domain': ['*']}, 'coep': {'Cross-Origin-Embedder-Policy': 'require-corp'}, 'coop': {'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'}, 'corp': {'Cross-Origin-Resource-Policy': 'same-site'}, 'clearSiteData': {'cache': True, 'storage': True}, 'cacheControl': {'public': True, 's-maxage': 600}}, Routes=['/login/{id}', '/logout/{id:uuid}/username/{username:string}'])
 ```
 ### Middleware Classes
 
@@ -265,7 +267,7 @@ app = Starlette()
 
 app.add_middleware(OriginAgentCluster)
 ```
-For more detail on Origin-Agent-Cluster header go to this [WHATWG Site](https://html.spec.whatwg.org/multipage/origin.html#origin-keyed-agent-clusters)
+For more detail on Origin-Agent-Cluster header go to this [WHATWG Site](https://html.spec.whatwg.org/multipage/browsers.html#origin-keyed-agent-clusters)
 
 #### Referrer Policy
 
@@ -380,7 +382,6 @@ app = Starlette()
 
 app.add_middleware(XDownloadOptions)
 ```
-For more detail on X-Download-Options header go to this [NWebsec Site](https://www.nwebsec.com/HttpHeaders/SecurityHeaders/XDownloadOptions)
 
 #### X-Frame
 
@@ -474,7 +475,7 @@ app = Starlette()
 
 app.add_middleware(PermissionsPolicy, Option={'accelerometer': ['self', '"https://example.com/"'], 'camera': [], 'display-capture': [], 'document-domain': ['self']'})
 ```
-For more detail on Permissions Policy header go to this [W3C Page](https://www.w3.org/TR/permissions-policy-1/)
+For more detail on Permissions Policy header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy)
 
 #### Cross Origin Embedder Policy
 
@@ -603,4 +604,4 @@ Please open an issue or Pull Request (PR) for any Errors/issues in this dev vers
 
 ## Secweb Icon
 
-[Secweb Icon](https://github.com/tmotagam/Secweb/blob/main/Secweb.jpg) © 2021 - 2022 by [Motagamwala Taha Arif Ali](https://github.com/tmotagam) is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1)
+[Secweb Icon](https://github.com/tmotagam/Secweb/blob/main/Secweb.jpg) © 2021 - 2023 by [Motagamwala Taha Arif Ali](https://github.com/tmotagam) is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1)

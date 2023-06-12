@@ -1,1 +1,0 @@
-from .XPermittedCrossDomainPoliciesMiddleware import XPermittedCrossDomainPolicies
