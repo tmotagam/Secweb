@@ -1,3 +1,22 @@
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "Secweb"
+version = "1.7.1"
+authors = [ { name="Motagamwala Taha Arif Ali", email = "tahaar5321@gmail.com" }, ]
+description = "Secweb is a pack of security middlewares for fastApi and starlette server it includes CSP, HSTS, and many more"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "Operating System :: OS Independent",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/tmotagam/Secweb"
+"Bug Tracker" = "https://github.com/tmotagam/Secweb/issues"

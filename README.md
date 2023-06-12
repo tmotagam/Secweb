@@ -5,7 +5,9 @@
 ---
 <br>
 
-Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 16 middlewares for setting headers of your website and also for your api`s
+Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 16 middlewares for setting headers of your website and also for your api(s)
+
+Now all the middlewares are pure ASGI implemented middlewares and from now on all the release will have sigstore signatures you can get them from the github release for both dev and production Secweb.
 
 #### The PermissionsPolicy middleware lies in development branch [here](https://github.com/tmotagam/Secweb/tree/Secweb-Beta#readme)
 
@@ -151,7 +153,7 @@ The values are as follows:
 
 ```python
 # Example of the values
-SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'xss': {'X-XSS-Protection': '1; mode=block'}, 'hsts': {'max-age': 4, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'expectCt': {'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"}, 'coep': {'Cross-Origin-Embedder-Policy': 'require-corp'}, 'coop': {'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'}, 'corp': {'Cross-Origin-Resource-Policy': 'same-site'}, 'clearSiteData': {'cache': True, 'storage': True}, 'cacheControl': {'public': True, 's-maxage': 600}}, Routes=['/login', '/logout/{id}'])
+SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'xss': {'X-XSS-Protection': '1; mode=block'}, 'hsts': {'max-age': 4, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'expectCt': {'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"}, 'coep': {'Cross-Origin-Embedder-Policy': 'require-corp'}, 'coop': {'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'}, 'corp': {'Cross-Origin-Resource-Policy': 'same-site'}, 'clearSiteData': {'cache': True, 'storage': True}, 'cacheControl': {'public': True, 's-maxage': 600}}, Routes=['/login/{id}', '/logout/{id:uuid}/username/{username:string}'])
 ```
 ### Middleware Classes
 
@@ -371,7 +373,6 @@ app = Starlette()
 
 app.add_middleware(XDownloadOptions)
 ```
-For more detail on X-Download-Options header go to this [NWebsec Site](https://www.nwebsec.com/HttpHeaders/SecurityHeaders/XDownloadOptions)
 
 #### X-Frame
 
@@ -569,4 +570,4 @@ Pull requests and Issues are welcome. For major changes, please open an issue fi
 
 ## Secweb Icon
 
-[Secweb Icon](https://github.com/tmotagam/Secweb/blob/main/Secweb.jpg) © 2021 - 2022 by [Motagamwala Taha Arif Ali](https://github.com/tmotagam) is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1)
+[Secweb Icon](https://github.com/tmotagam/Secweb/blob/main/Secweb.jpg) © 2021 - 2023 by [Motagamwala Taha Arif Ali](https://github.com/tmotagam) is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1)
