@@ -4,7 +4,6 @@
 
   Copyright 2021-2023, Motagamwala Taha Arif Ali '''
 
-from starlette.types import Scope, Receive, Send, ASGIApp, Message
 from starlette.datastructures import MutableHeaders
 
 class CrossOriginEmbedderPolicy:
@@ -16,18 +15,18 @@ class CrossOriginEmbedderPolicy:
     Parameter:
 
     Option={} This is a dictionary'''
-    def __init__(self, app: ASGIApp, Option: dict[str, str] = {'Cross-Origin-Embedder-Policy': 'unsafe-none'}):
+    def __init__(self, app, Option = {'Cross-Origin-Embedder-Policy': 'unsafe-none'}):
         self.app = app
         self.Option = Option
         Policies = ['require-corp', 'unsafe-none', 'credentialless']
         if self.Option['Cross-Origin-Embedder-Policy'] not in Policies:
             raise SyntaxError('Cross-Origin-Embedder-Policy has 3 options 1> "unsafe-none" 2> "require-corp" 3> "credentialless"')
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+    async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Cross_Origin_Embedder_Policy(message: Message):
+        async def set_Cross_Origin_Embedder_Policy(message):
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 headers.append('Cross-Origin-Embedder-Policy', self.Option['Cross-Origin-Embedder-Policy'])

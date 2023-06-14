@@ -5,7 +5,6 @@
   Copyright 2021-2023, Motagamwala Taha Arif Ali '''
 
 from warnings import warn
-from starlette.types import Scope, Receive, Send, ASGIApp, Message
 from starlette.datastructures import MutableHeaders
 
 class ExpectCt:
@@ -17,7 +16,7 @@ class ExpectCt:
     Parameter :
 
     Option={} This is a dictionary'''
-    def __init__(self, app: ASGIApp, Option: dict[str, str | bool | int] = {'max-age': 123, 'enforce': False, 'report-uri': ''}):
+    def __init__(self, app, Option = {'max-age': 123, 'enforce': False, 'report-uri': ''}):
         self.app = app
         self.PolicyString = ''
         warn("Expect-CT Header is now deprecated by browsers and may be removed from the library in the upcoming versions", SyntaxWarning, 2)
@@ -36,11 +35,11 @@ class ExpectCt:
         else:
             raise SyntaxError('Expect-CT has 3 options 1> "max-age=<Age>" <- This is the compulsory option 2> "enforce" 3> "report-uri=<Your URI>"')
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+    async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Expect_CT(message: Message):
+        async def set_Expect_CT(message):
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 headers.append('Expect-CT', self.PolicyString)

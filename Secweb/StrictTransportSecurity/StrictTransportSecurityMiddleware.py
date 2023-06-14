@@ -4,7 +4,6 @@
 
   Copyright 2021-2023, Motagamwala Taha Arif Ali '''
 
-from starlette.types import Scope, Receive, Send, ASGIApp, Message
 from starlette.datastructures import MutableHeaders
 
 class HSTS:
@@ -16,7 +15,7 @@ class HSTS:
     Parameter :
 
     Option={} This is a dictionary'''
-    def __init__(self, app: ASGIApp, Option: dict[str, int | bool] = {'max-age': 432000, 'includeSubDomains': True, 'preload': False}):
+    def __init__(self, app, Option = {'max-age': 432000, 'includeSubDomains': True, 'preload': False}):
         self.app = app
         self.PolicyString = ''
         if 'max-age' in Option:
@@ -37,11 +36,11 @@ class HSTS:
         else:
             raise SyntaxError('Strict-Transport-Security has 3 options 1> "max-age=<expire-time>" <- This is the compulsory option 2> "includeSubDomains" 3> "preload"')
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+    async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Strict_Transport_Security(message: Message):
+        async def set_Strict_Transport_Security(message):
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message) 
                 headers.append('Strict-Transport-Security', self.PolicyString)

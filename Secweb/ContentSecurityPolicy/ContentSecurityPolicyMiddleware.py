@@ -5,7 +5,6 @@
   Copyright 2021-2023, Motagamwala Taha Arif Ali '''
 
 from secrets import token_urlsafe
-from starlette.types import Scope, Receive, Send, ASGIApp, Message
 from starlette.datastructures import MutableHeaders
 
 nonce = None
@@ -39,7 +38,7 @@ class ContentSecurityPolicy:
     script_nonce=False This is the nonce flag for script
 
     style_nocne=True This is the nonce flag for style css'''
-    def __init__(self, app: ASGIApp, script_nonce: bool = False, style_nonce: bool = False, Option: dict[str, list[str]] = {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}):
+    def __init__(self, app, script_nonce: bool = False, style_nonce: bool = False, Option = {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}):
         self.app = app
         self.PolicyString = ''
         self.script_nonce = script_nonce
@@ -47,7 +46,7 @@ class ContentSecurityPolicy:
         Policy = ['child-src', 'connect-src', 'default-src', 'font-src', 'frame-src', 'img-src', 'manifest-src', 'media-src', 'object-src', 'script-src', 'script-src-elem', 'script-src-attr', 'style-src', 'style-src-elem', 'style-src-attr', 'worker-src', 'base-uri', 'plugin-types', 'sandbox', 'form-action', 'frame-ancestors', 'navigate-to', 'report-uri', 'report-to', 'block-all-mixed-content', 'require-trusted-types-for', 'trusted-types', 'upgrade-insecure-requests']
         self.__PolicyCheck__(Option, Policy)
 
-    def __PolicyCheck__(self, Option: dict[str, list[str]], Policy: list[str]):
+    def __PolicyCheck__(self, Option, Policy):
         keys = list(Option.keys())
 
         if self.script_nonce is True:
@@ -92,11 +91,11 @@ class ContentSecurityPolicy:
             else:
                 raise SyntaxError(f'The Policy { keys[i] } does not exists')
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+    async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Content_Security_Policy(message: Message):
+        async def set_Content_Security_Policy(message):
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 if self.script_nonce is True and self.style_nonce is True:

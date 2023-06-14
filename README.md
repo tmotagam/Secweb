@@ -9,6 +9,8 @@ Secweb is the pack of middlewares for setting security headers for fastapi and c
 
 Now all the middlewares are pure ASGI implemented middlewares and from now on all the release will have sigstore signatures you can get them from the github release for both dev and production Secweb.
 
+I have removed types in this version it can be used from 3.7 to latest python version.
+
 #### The PermissionsPolicy middleware lies in development branch [here](https://github.com/tmotagam/Secweb/tree/Secweb-Beta#readme)
 
 The list of middleware is as follows:
