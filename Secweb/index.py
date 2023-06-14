@@ -4,8 +4,6 @@
 
   Copyright 2021-2023, Motagamwala Taha Arif Ali '''
 
-from starlette.types import ASGIApp
-
 from .XFrameOptions.XFrameOptionsMiddleware import XFrame
 from .CrossOriginEmbedderPolicy.CrossOriginEmbedderPolicyMiddleware import CrossOriginEmbedderPolicy
 from .CrossOriginOpenerPolicy.CrossOriginOpenerPolicyMiddleware import CrossOriginOpenerPolicy
@@ -76,11 +74,11 @@ class SecWeb:
 
     def __init__(
         self,
-        app: ASGIApp,
-        Option: dict[str, dict[str, list[str] | str | bool | int]] = {},
-        Routes: list[str] = [],
-        script_nonce: bool = False,
-        style_nonce: bool = False,
+        app,
+        Option = {},
+        Routes = [],
+        script_nonce = False,
+        style_nonce = False,
     ) -> None:
         if not Option:
             app.add_middleware(XFrame)

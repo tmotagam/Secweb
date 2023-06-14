@@ -4,7 +4,6 @@
 
   Copyright 2021-2023, Motagamwala Taha Arif Ali '''
 
-from starlette.types import Scope, Receive, Send, ASGIApp, Message
 from starlette.datastructures import MutableHeaders
 
 class XPermittedCrossDomainPolicies:
@@ -16,18 +15,18 @@ class XPermittedCrossDomainPolicies:
     Parameter:
 
     Option={} This is a dictionary'''
-    def __init__(self, app: ASGIApp, Option: dict[str, str] = {'X-Permitted-Cross-Domain-Policies': 'none'}):
+    def __init__(self, app, Option = {'X-Permitted-Cross-Domain-Policies': 'none'}):
         self.app = app
         self.Option = Option
         Policies = ['none', 'master-only', 'by-content-type', 'all']
         if self.Option['X-Permitted-Cross-Domain-Policies'] not in Policies:
             raise SyntaxError('X-Permitted-Cross-Domain-Policies has four values 1> "none" 2> "master-only" 3> "by-content-type" 4> "all"')
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+    async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_x_Permitted_Cross_Domain_Policies(message: Message):
+        async def set_x_Permitted_Cross_Domain_Policies(message):
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 headers.append('X-Permitted-Cross-Domain-Policies', self.Option['X-Permitted-Cross-Domain-Policies'])

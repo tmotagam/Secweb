@@ -4,7 +4,6 @@
 
   Copyright 2021-2023, Motagamwala Taha Arif Ali '''
 
-from starlette.types import Scope, Receive, Send, ASGIApp, Message
 from starlette.datastructures import MutableHeaders
 
 class XDownloadOptions:
@@ -12,14 +11,14 @@ class XDownloadOptions:
 
     Example :
         app.add_middleware(XDownloadOptions)'''
-    def __init__(self, app: ASGIApp):
+    def __init__(self, app):
         self.app = app
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+    async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_x_Download_Options(message: Message):
+        async def set_x_Download_Options(message):
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 headers.append('X-Download-Options', 'noopen')

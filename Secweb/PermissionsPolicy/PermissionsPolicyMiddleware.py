@@ -5,7 +5,6 @@
   Copyright 2021-2023, Motagamwala Taha Arif Ali '''
 
 from warnings import warn
-from starlette.types import Scope, Receive, Send, ASGIApp, Message
 from starlette.datastructures import MutableHeaders
 
 class PermissionsPolicy:
@@ -18,7 +17,7 @@ class PermissionsPolicy:
     Parameters :
 
     Option={} This is a dictionary'''
-    def __init__(self, app: ASGIApp, Option: dict[str, list[str]] = {}):
+    def __init__(self, app, Option = {}):
         self.app = app
         self.PolicyString = ''
         Policy = ["accelerometer", "ambient-light-sensor", "autoplay", "battery", "camera", "display-capture", "document-domain", "encrypted-media", "execution-while-not-rendered", "execution-while-out-of-viewport", "fullscreen", "gamepad", "geolocation", "gyroscope", "hid", "identity-credentials-get", "idle-detection", "local-fonts", "magnetometer", "microphone", "midi", "payment", "picture-in-picture", "publickey-credentials-create", "publickey-credentials-get", "screen-wake-lock", "serial", "speaker-selection", "storage-access", "usb", "web-share", "xr-spatial-tracking"]
@@ -28,7 +27,7 @@ class PermissionsPolicy:
             warn("Permission-Policy header is still under working draft, browsers might give warnings and errors", SyntaxWarning, 2)
             self.__PolicyCheck__(Option, Policy)
     
-    def __PolicyCheck__(self, Option: dict[str, list[str]], Policy: list[str]):
+    def __PolicyCheck__(self, Option, Policy):
         keys = list(Option.keys())
 
         for i in range(len(keys)):
@@ -64,11 +63,11 @@ class PermissionsPolicy:
             else:
                 raise SyntaxError(f'The Policy { keys[i] } does not exists')
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+    async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Permissions_Policy(message: Message):
+        async def set_Permissions_Policy(message):
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 headers.append('Permissions-Policy', self.PolicyString)

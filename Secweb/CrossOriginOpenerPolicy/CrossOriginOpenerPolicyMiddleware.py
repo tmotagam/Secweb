@@ -4,7 +4,6 @@
 
   Copyright 2021-2023, Motagamwala Taha Arif Ali '''
 
-from starlette.types import Scope, Receive, Send, ASGIApp, Message
 from starlette.datastructures import MutableHeaders
 
 class CrossOriginOpenerPolicy:
@@ -16,18 +15,18 @@ class CrossOriginOpenerPolicy:
     Parameter:
 
     Option={} This is a dictionary'''
-    def __init__(self, app: ASGIApp, Option: dict[str, str] = {'Cross-Origin-Opener-Policy': 'unsafe-none'}):
+    def __init__(self, app, Option = {'Cross-Origin-Opener-Policy': 'unsafe-none'}):
         self.app = app
         self.Option = Option
         Policies = ['unsafe-none', 'same-origin-allow-popups', 'same-origin']
         if self.Option['Cross-Origin-Opener-Policy'] not in Policies:
             raise SyntaxError('Cross-Origin-Opener-Policy has 3 options 1> "unsafe-none" 2> "same-origin-allow-popups" 3> "same-origin"')
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+    async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Cross_Origin_Opener_Policy(message: Message):
+        async def set_Cross_Origin_Opener_Policy(message):
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 headers.append('Cross-Origin-Opener-Policy', self.Option['Cross-Origin-Opener-Policy'])

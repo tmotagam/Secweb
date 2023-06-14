@@ -4,7 +4,6 @@
 
   Copyright 2021-2023, Motagamwala Taha Arif Ali '''
 
-from starlette.types import Scope, Receive, Send, ASGIApp, Message
 from starlette.datastructures import MutableHeaders
 
 class CacheControl:
@@ -16,7 +15,7 @@ class CacheControl:
     Parameter:
 
     Option={} This is a dictionary'''
-    def __init__(self, app: ASGIApp, Option: dict[str, int | bool] = {'max-age': 86400, 'private': True }):
+    def __init__(self, app, Option = {'max-age': 86400, 'private': True }):
         self.app = app
         self.policyString = ''
         if 'max-age' in Option and Option['max-age'] >= 0:
@@ -58,11 +57,11 @@ class CacheControl:
         if list(Option.keys()).__len__() != 0 :
             raise SyntaxError('Cache-Control has 12 options 1> "max-age" 2> "s-maxage" 3> "no-cache" 4> "no-store" 5> "no-transform" 6> "must-revalidate" 7> "proxy-revalidate" 8> "must-understand" 9> "private" 10> "public" 11> "immutable" 12> "stale-while-revalidate" ')
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+    async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Cache_Control(message: Message):
+        async def set_Cache_Control(message):
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 headers.append('Cache-Control', self.policyString)

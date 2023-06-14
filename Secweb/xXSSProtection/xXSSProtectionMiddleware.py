@@ -4,7 +4,6 @@
 
   Copyright 2021-2023, Motagamwala Taha Arif Ali '''
 
-from starlette.types import Scope, Receive, Send, ASGIApp, Message
 from starlette.datastructures import MutableHeaders
 
 class xXSSProtection:
@@ -16,17 +15,17 @@ class xXSSProtection:
     Parameter:
 
     Option={} This is a dictionary'''
-    def __init__(self, app: ASGIApp, Option: dict[str, str] = {'X-XSS-Protection': '0'}):
+    def __init__(self, app, Option = {'X-XSS-Protection': '0'}):
         self.app = app
         self.Option = Option
         if self.Option['X-XSS-Protection'] != '0' and self.Option['X-XSS-Protection'] != '1' and self.Option['X-XSS-Protection'] != '1; mode=block' and '1; report=' not in self.Option['X-XSS-Protection']:
             raise SyntaxError('X-XSS-Protection has 4 options 1> "0" 2> "1" 3> "1; mode=block" 4> "1; report=<Your Reporting Uri>"')
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+    async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_x_XSS_Protection(message: Message):
+        async def set_x_XSS_Protection(message):
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 headers.append('X-XSS-Protection', self.Option['X-XSS-Protection'])

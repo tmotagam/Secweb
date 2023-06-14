@@ -4,12 +4,11 @@
 
   Copyright 2021-2023, Motagamwala Taha Arif Ali '''
 
-from starlette.types import Scope, Receive, Send, ASGIApp, Message
 from starlette.datastructures import MutableHeaders
 from starlette.convertors import CONVERTOR_TYPES
 from re import compile, escape
 
-def __path_regex_builder__(path: str):
+def __path_regex_builder__(path):
     is_host = not path.startswith("/")
 
     path_regex = "^"
@@ -53,7 +52,7 @@ class ClearSiteData:
     Option={} This is a dictionary
 
     Routes=[] This is an Array'''
-    def __init__(self, app: ASGIApp, Option: dict[str, bool] = {'cache': True, 'cookies': True, 'storage': True}, Routes: list[str] = []):
+    def __init__(self, app, Option = {'cache': True, 'cookies': True, 'storage': True}, Routes = []):
         self.app = app
         self.policyString = ''
         if Routes.__len__() == 0:
@@ -78,11 +77,11 @@ class ClearSiteData:
         if list(Option.keys()).__len__() != 0 :
             raise SyntaxError('Clear-Site-Data has 4 options 1> "cache" 2> "cookies" 3> "storage" 4> "*"')
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+    async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
         
-        async def set_route(message: Message):
+        async def set_route(message):
             if message["type"] == "http.response.start":
                 for i in self.pathregex:
                     if i.match(scope["path"]):
