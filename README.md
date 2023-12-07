@@ -5,11 +5,9 @@
 ---
 <br>
 
-Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 16 middlewares for setting headers of your website and also for your api(s)
+Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 16 middlewares for setting headers of your website and also for your api(s).
 
-Now all the middlewares are pure ASGI implemented middlewares and from now on all the release will have sigstore signatures you can get them from the github release for both dev and production Secweb.
-
-I have removed types in this version it can be used from 3.7 to latest python version.
+##### ExpectCt header is now removed from the library
 
 #### The PermissionsPolicy middleware lies in development branch [here](https://github.com/tmotagam/Secweb/tree/Secweb-Beta#readme)
 
@@ -19,19 +17,19 @@ The list of middleware is as follows:
 
 <br>
 
-2. ExpectCT (deprecated) :warning:
+2. Origin Agent Cluster
 
 <br>
 
-3. Origin Agent Cluster
+3. Referrer Policy
 
 <br>
 
-4. Referrer Policy
+4. HTTP Strict Transport Security(HSTS)
 
 <br>
 
-5. HTTP Strict Transport Security(HSTS)
+5. HTTP Strict Transport Security(HSTS) for WebSockets
 
 <br>
 
@@ -111,51 +109,48 @@ from Secweb import SecWeb
 
 SecWeb(app=app, Option={'referrer': {'Referrer-Policy': 'no-referrer'}}, Routes=[], script_nonce=False, style_nonce=False)
 ```
-The Option uses 13 keys for calling middleware classes to set the user-defined policies. 3 middleware classes doesn`t take any values.
+The Option uses 12 keys for calling middleware classes to set the user-defined policies. 4 middleware classes doesn`t take any values.
 
 The values are as follows:
 
 1. `'csp'` for calling ContentSecurityPolicy class to set the user-defined values
 <br>
 
-2. `'expectCt'` for calling ExpectCt class to set the user-defined values :warning:
+2. `'referrer'` for calling ReferrerPolicy class to set the user-defined values
 <br>
 
-3. `'referrer'` for calling ReferrerPolicy class to set the user-defined values
+3. `'xdns'` for calling XDNSPrefetchControl class to set the user-defined values
 <br>
 
-4. `'xdns'` for calling XDNSPrefetchControl class to set the user-defined values
+4. `'xcdp'` for calling XPermittedCrossDomainPolicies class to set the user-defined values
 <br>
 
-5. `'xcdp'` for calling XPermittedCrossDomainPolicies class to set the user-defined values
+5. `'hsts'` for calling HSTS class to set the user-defined values
 <br>
 
-6. `'hsts'` for calling HSTS class to set the user-defined values
+6. `'wshsts'` for calling WsHSTS class to set the user-defined values for Websockets
 <br>
 
-7. `'xss'` for calling xXSSProtection class to set the user-defined values
+7. `'xframe'` for calling XFrame class to set the user-defined values
 <br>
 
-8. `'xframe'` for calling XFrame class to set the user-defined values
+8. `'coep'` for calling CrossOriginEmbedderPolicy class to set the user-defined values
 <br>
 
-9. `'coep'` for calling CrossOriginEmbedderPolicy class to set the user-defined values
+9. `'coop'` for calling CrossOriginOpenerPolicy class to set the user-defined values
 <br>
 
-10. `'coop'` for calling CrossOriginOpenerPolicy class to set the user-defined values
+10. `'corp'` for calling CrossOriginResourcePolicy class to set the user-defined values
 <br>
 
-11. `'corp'` for calling CrossOriginResourcePolicy class to set the user-defined values
+11. `'clearSiteData'` for calling ClearSiteData class to set the user-defined values
 <br>
 
-12. `'clearSiteData'` for calling ClearSiteData class to set the user-defined values
-<br>
-
-13. `'cacheControl'` for calling CacheControl class to set the user-defined values
+12. `'cacheControl'` for calling CacheControl class to set the user-defined values
 
 ```python
 # Example of the values
-SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'xss': {'X-XSS-Protection': '1; mode=block'}, 'hsts': {'max-age': 4, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'expectCt': {'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"}, 'coep': {'Cross-Origin-Embedder-Policy': 'require-corp'}, 'coop': {'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'}, 'corp': {'Cross-Origin-Resource-Policy': 'same-site'}, 'clearSiteData': {'cache': True, 'storage': True}, 'cacheControl': {'public': True, 's-maxage': 600}}, Routes=['/login/{id}', '/logout/{id:uuid}/username/{username:string}'])
+SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'hsts': {'max-age': 4, 'preload': True}, 'wshsts': {'max-age': 10, 'preload': True},'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'coep': {'Cross-Origin-Embedder-Policy': 'require-corp'}, 'coop': {'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'}, 'corp': {'Cross-Origin-Resource-Policy': 'same-site'}, 'clearSiteData': {'cache': True, 'storage': True}, 'cacheControl': {'public': True, 's-maxage': 600}}, Routes=['/login/{id}', '/logout/{id:uuid}/username/{username:string}'])
 ```
 ### Middleware Classes
 
@@ -169,7 +164,7 @@ Nonce Processor
 
 ```python
     # Some Code
-    nonce = Nonce_Processor(DEFAULT_ENTROPY=20)  # inject the nonce variable into the jinja or html
+    nonce = Nonce_Processor(DEFAULT_ENTROPY=90)  # inject the nonce variable into the jinja or html
     # Some Code
 ```
 DEFAULT_ENTROPY is used to set the nonce length.
@@ -185,7 +180,7 @@ app = FastAPI()
 @app.get("/")
 async def root():
     # some code
-    nonce = Nonce_Processor(DEFAULT_ENTROPY=20)  # inject the nonce variable into the jinja or html
+    nonce = Nonce_Processor(DEFAULT_ENTROPY=90)  # inject the nonce variable into the jinja or html
     # some more code
 ```
 ContentSecurityPolicy
@@ -216,28 +211,6 @@ script_nonce=False This is the nonce flag for inline Js
 style_nonce=False This is the nonce flag for inline css
 
 For more detail on CSP header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy)
-
-#### ExpectCT :warning:
-
-ExpectCt class sets the ExpectCt header. The default value will not work for ExpectCt class you need to explicitly set the header.
-
-```python
-from fastapi import FastAPI
-from Secweb.ExpectCt import ExpectCt
-
-app = FastAPI()
-
-app.add_middleware(ExpectCt, Option={'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"})
-
-# OR
-from starlette.applications import Starlette
-from Secweb.ExpectCt import ExpectCt
-
-app = Starlette()
-
-app.add_middleware(ExpectCt, Option={'max-age': 128, 'enforce': True, 'report-uri': "https://example.com/example"})
-```
-For more detail on ExpectCt header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Expect-CT)
 
 #### Origin Agent Cluster
 
@@ -305,6 +278,29 @@ from Secweb.StrictTransportSecurity import HSTS
 app = Starlette()
 
 app.add_middleware(HSTS, Option={'max-age': 4, 'preload': True})
+```
+For more detail on Strict-Transport-Security header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security)
+
+#### HTTP Strict Transport Security (HSTS) for WebSockets
+
+HSTS class sets the Strict-Transport-Security header for Websockets
+
+```python
+from fastapi import FastAPI
+from Secweb.WsStrictTransportSecurity import WsHSTS
+
+app = FastAPI()
+
+app.add_middleware(WsHSTS, Option={'max-age': 4, 'preload': True})
+
+# OR
+
+from starlette.applications import Starlette
+from Secweb.WsStrictTransportSecurity import WsHSTS
+
+app = Starlette()
+
+app.add_middleware(WsHSTS, Option={'max-age': 4, 'preload': True})
 ```
 For more detail on Strict-Transport-Security header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security)
 
@@ -424,7 +420,7 @@ For more detail on X-Permitted-Cross-Domain-Policies header go to this [OWASP Si
 
 #### X-XSS-Protection
 
-xXSSProtection class sets the X-XSS-Protection header
+xXSSProtection class sets the X-XSS-Protection header the class takes no parameter
 
 ```python
 from fastapi import FastAPI
@@ -432,7 +428,7 @@ from Secweb.xXSSProtection import xXSSProtection
 
 app = FastAPI()
 
-app.add_middleware(xXSSProtection, Option={'X-XSS-Protection': '0'})
+app.add_middleware(xXSSProtection)
 
 # OR
 
@@ -441,7 +437,7 @@ from Secweb.xXSSProtection import xXSSProtection
 
 app = Starlette()
 
-app.add_middleware(xXSSProtection, Option={'X-XSS-Protection': '0'})
+app.add_middleware(xXSSProtection)
 ```
 For more detail on X-XSS-Protection header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection)
 
@@ -572,4 +568,4 @@ Pull requests and Issues are welcome. For major changes, please open an issue fi
 
 ## Secweb Icon
 
-[Secweb Icon](https://github.com/tmotagam/Secweb/blob/main/Secweb.jpg) © 2021 - 2023 by [Motagamwala Taha Arif Ali](https://github.com/tmotagam) is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1)
+[Secweb Icon](https://github.com/tmotagam/Secweb/blob/main/Secweb.jpg) © 2021 - 2024 by [Motagamwala Taha Arif Ali](https://github.com/tmotagam) is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1)

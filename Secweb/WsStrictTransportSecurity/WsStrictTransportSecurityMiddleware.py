@@ -6,15 +6,15 @@
 
 from starlette.datastructures import MutableHeaders
 
-class HSTS:
-    ''' HSTS class sets Strict-Transport-Security Header.
+class WsHSTS:
+    ''' HSTS class sets Strict-Transport-Security Header for Websocket.
 
     Example :
-        app.add_middleware(HSTS, Option={})
+        app.add_middleware(WsHSTS, Option={})
 
     Parameter :
         Option (dict, optional): The options for the class. Defaults to {'max-age': 432000, 'includeSubDomains': True, 'preload': False}.
-
+    
     '''
     def __init__(self, app, Option = {'max-age': 432000, 'includeSubDomains': True, 'preload': False}):
         """
@@ -52,31 +52,28 @@ class HSTS:
 
     async def __call__(self, scope, receive, send):
         """
-        Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
+        Asynchronously handles Websocket requests by routing them to the appropriate handler based on the request path.
 
         Parameters:
             scope (Dict[str, Any]): The scope of the request.
             receive (Callable[[], Awaitable[Dict[str, Any]]]): A function that returns a coroutine that reads messages from the server.
             send (Callable[[Dict[str, Any]], Awaitable[None]]): A function that sends messages to the server.
-
-        Returns:
-            None
         """
-        if scope["type"] != "http":
+        if scope["type"] != "websocket":
             return await self.app(scope, receive, send)
 
-        async def set_Strict_Transport_Security(message):
+        async def set_Strict_Transport_Security(message):  
             """
-            Sets the Strict-Transport-Security header in the HTTP response start event.
-
+            Set the Strict-Transport-Security header in the response headers if the message type is "websocket.accept".
+            
             Args:
-                message (dict): The message received from the ASGI server.
-
+                message (dict): The message object containing information about the request.
+            
             Returns:
                 None
 
             """
-            if message["type"] == "http.response.start":
+            if message["type"] == "websocket.accept":
                 headers = MutableHeaders(scope=message) 
                 headers.append('Strict-Transport-Security', self.PolicyString)
 
