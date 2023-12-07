@@ -2,13 +2,31 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021-2023, Motagamwala Taha Arif Ali '''
+  Copyright 2021-2024, Motagamwala Taha Arif Ali '''
 
 from starlette.datastructures import MutableHeaders
 from starlette.convertors import CONVERTOR_TYPES
 from re import compile, escape
 
 def __path_regex_builder__(path):
+    """
+    Generate a regular expression pattern for a given path.
+
+    Args:
+        path (str): The path to generate the regular expression pattern for.
+
+    Returns:
+        re.Pattern: The compiled regular expression pattern.
+
+    Raises:
+        ValueError: If there are duplicated parameter names in the path.
+        AssertionError: If an unknown path convertor is encountered.
+
+    Example:
+        path = "/users/{id}"
+        pattern = __path_regex_builder__(path)
+        print(pattern.match("/users/123"))  # <re.Match object; span=(0, 11), match='/users/123'>
+    """
     is_host = not path.startswith("/")
 
     path_regex = "^"
@@ -42,17 +60,31 @@ def __path_regex_builder__(path):
     return compile(path_regex)
 
 class ClearSiteData:
-    ''' ClearSiteData class sets Clear-Site-Data header it takes two Parameter
+    ''' ClearSiteData class sets Clear-Site-Data header.
 
     Example:
         app.add_middleware(ClearSiteData, Option={}, Routes=[])
 
     Parameter:
-
-    Option={} This is a dictionary
-
-    Routes=[] This is an Array'''
+        Option (dict, optional): The options for the class. Defaults to {'cache': True, 'cookies': True, 'storage': True}.
+        Routes (list, optional): The list of routes. Defaults to [].
+    
+    '''
     def __init__(self, app, Option = {'cache': True, 'cookies': True, 'storage': True}, Routes = []):
+        """
+        Initializes the class with the provided parameters.
+
+        Args:
+            app (object): The application object.
+            Option (dict, optional): The options for the class. Defaults to {'cache': True, 'cookies': True, 'storage': True}.
+            Routes (list, optional): The list of routes. Defaults to [].
+
+        Raises:
+            SyntaxError: If the routes are empty.
+
+        Returns:
+            None
+        """
         self.app = app
         self.policyString = ''
         if Routes.__len__() == 0:
@@ -78,10 +110,30 @@ class ClearSiteData:
             raise SyntaxError('Clear-Site-Data has 4 options 1> "cache" 2> "cookies" 3> "storage" 4> "*"')
 
     async def __call__(self, scope, receive, send):
+        """
+        Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
+
+        Parameters:
+            scope (Dict[str, Any]): The scope of the request.
+            receive (Callable[[], Awaitable[Dict[str, Any]]]): A function that returns a coroutine that reads messages from the server.
+            send (Callable[[Dict[str, Any]], Awaitable[None]]): A function that sends messages to the server.
+
+        Returns:
+            None
+        """
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
         
         async def set_route(message):
+            """
+            Sets the header for the given route.
+
+            Args:
+                message (dict): The message object containing the type and other information.
+
+            Returns:
+                None
+            """
             if message["type"] == "http.response.start":
                 for i in self.pathregex:
                     if i.match(scope["path"]):

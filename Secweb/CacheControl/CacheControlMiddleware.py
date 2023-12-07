@@ -2,20 +2,58 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021-2023, Motagamwala Taha Arif Ali '''
+  Copyright 2021-2024, Motagamwala Taha Arif Ali '''
 
 from starlette.datastructures import MutableHeaders
 
 class CacheControl:
-    ''' CacheControl class sets Cache-Control header it takes one Parameter
+    ''' CacheControl class sets Cache-Control header.
 
     Example:
         app.add_middleware(CacheControl, Option={})
 
     Parameter:
-
-    Option={} This is a dictionary'''
+        Option (dict): Optional dictionary containing cache control options.
+            - 'max-age' (int): The maximum age of the cache in seconds.
+            - 's-maxage' (int): The maximum age of the shared cache in seconds.
+            - 'no-cache' (bool): Specifies whether the cache should be bypassed.
+            - 'no-store' (bool): Specifies whether the cache should not store any response.
+            - 'no-transform' (bool): Specifies whether the cache should not transform the response.
+            - 'must-revalidate' (bool): Specifies whether the cache must revalidate the response.
+            - 'proxy-revalidate' (bool): Specifies whether the cache must revalidate the response on the proxy server.
+            - 'must-understand' (bool): Specifies whether the cache must understand the response.
+            - 'private' (bool): Specifies whether the cache response is specific to a user.
+            - 'public' (bool): Specifies whether the cache response is public.
+            - 'immutable' (bool): Specifies whether the cache response is immutable.
+            - 'stale-while-revalidate' (int): The maximum age of stale content in seconds while revalidating.
+    
+    '''
     def __init__(self, app, Option = {'max-age': 86400, 'private': True }):
+        """
+        Initializes a new instance of the class.
+
+        Parameters:
+            app (object): The application object.
+            Option (dict): Optional dictionary containing cache control options.
+                - 'max-age' (int): The maximum age of the cache in seconds.
+                - 's-maxage' (int): The maximum age of the shared cache in seconds.
+                - 'no-cache' (bool): Specifies whether the cache should be bypassed.
+                - 'no-store' (bool): Specifies whether the cache should not store any response.
+                - 'no-transform' (bool): Specifies whether the cache should not transform the response.
+                - 'must-revalidate' (bool): Specifies whether the cache must revalidate the response.
+                - 'proxy-revalidate' (bool): Specifies whether the cache must revalidate the response on the proxy server.
+                - 'must-understand' (bool): Specifies whether the cache must understand the response.
+                - 'private' (bool): Specifies whether the cache response is specific to a user.
+                - 'public' (bool): Specifies whether the cache response is public.
+                - 'immutable' (bool): Specifies whether the cache response is immutable.
+                - 'stale-while-revalidate' (int): The maximum age of stale content in seconds while revalidating.
+
+        Raises:
+            SyntaxError: If the `Option` dictionary contains unsupported cache control options.
+
+        Returns:
+            None
+        """
         self.app = app
         self.policyString = ''
         if 'max-age' in Option and Option['max-age'] >= 0:
@@ -58,10 +96,30 @@ class CacheControl:
             raise SyntaxError('Cache-Control has 12 options 1> "max-age" 2> "s-maxage" 3> "no-cache" 4> "no-store" 5> "no-transform" 6> "must-revalidate" 7> "proxy-revalidate" 8> "must-understand" 9> "private" 10> "public" 11> "immutable" 12> "stale-while-revalidate" ')
 
     async def __call__(self, scope, receive, send):
+        """
+        Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
+
+        Parameters:
+            scope (Dict[str, Any]): The scope of the request.
+            receive (Callable[[], Awaitable[Dict[str, Any]]]): A function that returns a coroutine that reads messages from the server.
+            send (Callable[[Dict[str, Any]], Awaitable[None]]): A function that sends messages to the server.
+
+        Returns:
+            None
+        """
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
         async def set_Cache_Control(message):
+            """
+            Set the Cache-Control header in the HTTP response.
+
+            Parameters:
+                message (dict): The message object containing the response information.
+
+            Returns:
+                None
+            """
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 headers.append('Cache-Control', self.policyString)

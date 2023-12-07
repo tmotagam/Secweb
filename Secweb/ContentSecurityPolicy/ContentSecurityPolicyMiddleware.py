@@ -2,7 +2,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021-2023, Motagamwala Taha Arif Ali '''
+  Copyright 2021-2024, Motagamwala Taha Arif Ali '''
 
 from secrets import token_urlsafe
 from starlette.datastructures import MutableHeaders
@@ -10,105 +10,142 @@ from starlette.datastructures import MutableHeaders
 nonce = None
 
 def Nonce_Processor(DEFAULT_ENTROPY=90):
-    ''' This is the Nonce Processor module that will create the nonce for inline style and script
-    It will be needed to call on the route which needs nonce for the inline script and css
+    """
+    Generate a nonce using the `token_urlsafe` function.
 
-    Example :
-        @app.get("/")
-        async def root():
-            nonce = Nonce_Processor(DEFAULT_ENTROPY=20)  # inject the nonce variable into the jinja or html
+    Args:
+        DEFAULT_ENTROPY (int, optional): The entropy value for generating the nonce. Defaults to 90.
 
-    Parameter :
-    DEFAULT_ENTROPY=20 This option sets the default entropy used for generating nonce'''
+    Returns:
+        str: The generated nonce.
+
+    """
     global nonce
     nonce = token_urlsafe(DEFAULT_ENTROPY)
     return nonce
 
 class ContentSecurityPolicy:
-    ''' ContentSecurityPolicy class takes three prarameters script_nonce, style_nonce, Option for
-    creating your csp header
+    ''' ContentSecurityPolicy class sets Content-Security-Policy header.
 
     Example :
         app.add_middleware(ContentSecurityPolicy, Option={}, script_nonce=False, style_nonce=True)
 
     Parameters :
-
-    Option={} This is a dictionary
-
-    script_nonce=False This is the nonce flag for script
-
-    style_nocne=True This is the nonce flag for style css'''
+        script_nonce (bool, optional): The script_nonce parameter. Defaults to False.
+        style_nonce (bool, optional): The style_nonce parameter. Defaults to False.
+        Option (dict, optional): The Option parameter. Defaults to {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}.
+    
+    '''
     def __init__(self, app, script_nonce: bool = False, style_nonce: bool = False, Option = {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}):
+        """
+        Initialize the class with the given parameters.
+
+        Parameters:
+            app (type): The app parameter.
+            script_nonce (bool, optional): The script_nonce parameter. Defaults to False.
+            style_nonce (bool, optional): The style_nonce parameter. Defaults to False.
+            Option (dict, optional): The Option parameter. Defaults to {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}.
+
+        Returns:
+            None
+        """
         self.app = app
         self.PolicyString = ''
         self.script_nonce = script_nonce
         self.style_nonce = style_nonce
         Policy = ['child-src', 'connect-src', 'default-src', 'font-src', 'frame-src', 'img-src', 'manifest-src', 'media-src', 'object-src', 'script-src', 'script-src-elem', 'script-src-attr', 'style-src', 'style-src-elem', 'style-src-attr', 'worker-src', 'base-uri', 'plugin-types', 'sandbox', 'form-action', 'frame-ancestors', 'navigate-to', 'report-uri', 'report-to', 'block-all-mixed-content', 'require-trusted-types-for', 'trusted-types', 'upgrade-insecure-requests']
         self.__PolicyCheck__(Option, Policy)
-
+    
     def __PolicyCheck__(self, Option, Policy):
+        """
+        Check the policy for a given option and update the policy string.
+
+        Parameters:
+            Option (dict): A dictionary containing the policy options.
+            Policy (dict): A dictionary containing the existing policy.
+
+        Raises:
+            SyntaxError: If a required policy option is missing.
+            SyntaxError: If a policy option does not exist.
+
+        Returns:
+            None
+        """
         keys = list(Option.keys())
 
-        if self.script_nonce is True:
-            if keys.index('script-src') is None:
-                raise SyntaxError('script-src is compulsory for nonce')
+        if self.script_nonce and 'script-src' not in keys:
+            raise SyntaxError('script-src is compulsory for nonce')
 
-        if self.style_nonce is True:
-            if keys.index('style-src') is None:
-                raise SyntaxError('style-src is compulsory for nonce')
+        if self.style_nonce and 'style-src' not in keys:
+            raise SyntaxError('style-src is compulsory for nonce')
 
-        for i in range(len(keys)):
-            if keys[i] in Policy:
-                self.PolicyString += keys[i]
-                values = Option[keys[i]]
-                if (keys[i] == 'script-src' and self.script_nonce is True and len(values) == 0) or (keys[i] == 'style-src' and self.style_nonce is True and len(values) == 0):
-                    self.PolicyString += " "
-                elif i == len(keys) - 1:
-                    if len(values) != 0:
-                        self.PolicyString += " "
-                    else:
-                        self.PolicyString += ''
-                elif len(values) == 0:
-                    self.PolicyString += '; '
-                else:
-                    self.PolicyString += " "
+        for i, key in enumerate(keys):
+            if key not in Policy:
+                raise SyntaxError(f'The Policy {key} does not exist')
 
-                if keys[i] == 'script-src' and self.script_nonce is True:
-                    self.PolicyString += "'nonce-{script_nonce_value}'" if i == len(keys) - 1 and len(values) == 0 else "'nonce-{script_nonce_value}'; " if len(values) == 0 else "'nonce-{script_nonce_value}' "
+            self.PolicyString += key
+            values = Option[key]
 
-                if keys[i] == 'style-src' and self.style_nonce is True:
-                    self.PolicyString += "'nonce-{style_nonce_value}'" if i == len(keys) - 1 and len(values) == 0 else "'nonce-{style_nonce_value}'; " if len(values) == 0 else "'nonce-{style_nonce_value}' "
-
-                for j in range(len(values)):
-                    self.PolicyString += values[j]
-                    if j == len(values) - 1:
-                        if i == len(keys) - 1:
-                            self.PolicyString += ''
-                        else:
-                            self.PolicyString += '; '
-                    else:
-                        self.PolicyString += ' '
+            if (key == 'script-src' and self.script_nonce and len(values) == 0) or (key == 'style-src' and self.style_nonce and len(values) == 0):
+                self.PolicyString += " "
+            elif i == len(keys) - 1:
+                self.PolicyString += " " if len(values) != 0 else ''
+            elif len(values) == 0:
+                self.PolicyString += '; '
             else:
-                raise SyntaxError(f'The Policy { keys[i] } does not exists')
+                self.PolicyString += " "
+
+            if key == 'script-src' and self.script_nonce:
+                self.PolicyString += "'nonce-{script_nonce_value}'" if i == len(keys) - 1 and len(values) == 0 else "'nonce-{script_nonce_value}'; " if len(values) == 0 else "'nonce-{script_nonce_value}' "
+
+            if key == 'style-src' and self.style_nonce:
+                self.PolicyString += "'nonce-{style_nonce_value}'" if i == len(keys) - 1 and len(values) == 0 else "'nonce-{style_nonce_value}'; " if len(values) == 0 else "'nonce-{style_nonce_value}' "
+
+            for j, value in enumerate(values):
+                self.PolicyString += value
+                if j == len(values) - 1:
+                    self.PolicyString += '' if i == len(keys) - 1 else '; '
+                else:
+                    self.PolicyString += ' '
 
     async def __call__(self, scope, receive, send):
+        """
+        Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
+
+        Parameters:
+            scope (Dict[str, Any]): The scope of the request.
+            receive (Callable[[], Awaitable[Dict[str, Any]]]): A function that returns a coroutine that reads messages from the server.
+            send (Callable[[Dict[str, Any]], Awaitable[None]]): A function that sends messages to the server.
+
+        Returns:
+            None
+        """
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
+        PS = self.PolicyString
+
         async def set_Content_Security_Policy(message):
+            """
+            Sets the Content-Security-Policy header in the HTTP response.
+
+            Args:
+                message (dict): The message containing the type of the response.
+
+            Returns:
+                None
+
+            """
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 if self.script_nonce is True and self.style_nonce is True:
-                    PS = self.PolicyString
                     headers.append('Content-Security-Policy', PS.format(script_nonce_value=nonce, style_nonce_value=nonce))
                 elif self.style_nonce is True:
-                    PS = self.PolicyString
                     headers.append('Content-Security-Policy', PS.format(style_nonce_value=nonce))
                 elif self.script_nonce is True:
-                    PS = self.PolicyString
                     headers.append('Content-Security-Policy', PS.format(script_nonce_value=nonce))
                 else:
-                    headers.append('Content-Security-Policy', self.PolicyString)
+                    headers.append('Content-Security-Policy', PS)
 
             await send(message)
 
