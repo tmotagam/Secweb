@@ -36,7 +36,7 @@ class PermissionsPolicy:
         """
         self.app = app
         self.PolicyString = ''
-        Policy = ["accelerometer", "ambient-light-sensor", "attribution-reporting", "autoplay", "battery", "browsing-topics", "camera", "display-capture", "document-domain", "encrypted-media", "execution-while-not-rendered", "execution-while-out-of-viewport", "fullscreen", "gamepad", "geolocation", "gyroscope", "hid", "identity-credentials-get", "idle-detection", "local-fonts", "magnetometer", "microphone", "midi", "otp-credentials", "payment", "picture-in-picture", "publickey-credentials-create", "publickey-credentials-get", "screen-wake-lock", "serial", "speaker-selection", "storage-access", "usb", "web-share", "window-management", "xr-spatial-tracking"]
+        Policy = ["accelerometer", "ambient-light-sensor", "attribution-reporting", "autoplay", "battery", "bluetooth", "browsing-topics", "camera", "compute-pressure", "display-capture", "document-domain", "encrypted-media", "execution-while-not-rendered", "execution-while-out-of-viewport", "fullscreen", "gamepad", "geolocation", "gyroscope", "hid", "identity-credentials-get", "idle-detection", "local-fonts", "magnetometer", "microphone", "midi", "otp-credentials", "payment", "picture-in-picture", "publickey-credentials-create", "publickey-credentials-get", "screen-wake-lock", "serial", "speaker-selection", "storage-access", "usb", "web-share", "window-management", "xr-spatial-tracking"]
         if Option == {}:
             raise SyntaxError('Option cannot be empty for Permission-Policy to be applied')
         else:

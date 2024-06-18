@@ -9,8 +9,6 @@
 
 Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 17 middlewares for setting headers of your website and also for your api(s).
 
-##### ExpectCt header is now removed from the library
-
 The list of middleware is as follows:
 
 1. Content Security Policy (CSP)
@@ -90,7 +88,7 @@ The list of middleware is as follows:
 To install the dev version of the Secweb you have to download the .whl file from build directory in this branch and install the Secweb
 
 ```powershell
-pip install Secweb_dev-1.9.2-py3-none-any.whl
+pip install Secweb_dev-1.11.1-py3-none-any.whl
 ```
 ## Usage
 The package Secweb can be used in two different ways
@@ -108,58 +106,101 @@ from Secweb import SecWeb
 
 SecWeb(app=app)  # The app is the ASGIapp required by the starlette to give access to the different methods to the class
 ```
-The above example uses all the default headers value that are are preset you can change the values by creating the option dict you can also set flags for nonce generation for csp header using the `script_nonce=True` and `style_nonce=True` flags. For Clear-Site-Data header `Routes=[]` array has been added. It is empty by default.
+The above example uses all the default headers value that are are preset you can change the values by creating the option dict you can also set flags for nonce generation for csp header using the `script_nonce=True` and `style_nonce=True` flags also `report_only` flag is added for csp report only header. For Clear-Site-Data header `Routes=[]` array is used for applying the header it is empty by default.
+
+
+```Python
+
+from Secweb import SecWeb
+
+  
+
+SecWeb(app=app, Option={'referrer': {'Referrer-Policy': 'no-referrer'}}, Routes=[], script_nonce=False, style_nonce=False, report_only=False)
+
+```
+
+The Option uses 17 keys for calling middleware classes to set the user-defined policies or activating\deactivating header(s).
+
+##### Note: Activating/Deactivating the header can only be done in SecWeb class in Option param, eg:
 
 ```Python
 from Secweb import SecWeb
 
-SecWeb(app=app, Option={'referrer': {'Referrer-Policy': 'no-referrer'}}, Routes=[], script_nonce=False, style_nonce=False)
+Secweb(app=app, Option={'referrer': False, 'xframe': False})
 ```
-The Option uses 13 keys for calling middleware classes to set the user-defined policies. 4 middleware classes doesn`t take any values.
+
 
 The values are as follows:
 
-1. `'csp'` for calling ContentSecurityPolicy class to set the user-defined values
+1.  `'csp'` for calling ContentSecurityPolicy class to set the user-defined values or activate/deactivate the header
+
 <br>
 
-2. `'referrer'` for calling ReferrerPolicy class to set the user-defined values
+2.  `'referrer'` for calling ReferrerPolicy class to set the user-defined values or activate/deactivate the header
+
 <br>
 
-3. `'xdns'` for calling XDNSPrefetchControl class to set the user-defined values
+3.  `'xdns'` for calling XDNSPrefetchControl class to set the user-defined values or activate/deactivate the header
+
 <br>
 
-4. `'xcdp'` for calling XPermittedCrossDomainPolicies class to set the user-defined values
+4.  `'xcdp'` for calling XPermittedCrossDomainPolicies class to set the user-defined values or activate/deactivate the header
+
 <br>
 
-5. `'hsts'` for calling HSTS class to set the user-defined values
+5.  `'hsts'` for calling HSTS class to set the user-defined values or activate/deactivate the header
+
 <br>
 
-6. `'wshsts'` for calling WsHSTS class to set the user-defined values for Websockets
+6.  `'wshsts'` for calling WsHSTS class to set the user-defined values for Websockets or activate/deactivate the header
+
 <br>
 
-7. `'xframe'` for calling XFrame class to set the user-defined values
+7.  `'xframe'` for calling XFrame class to set the user-defined values or activate/deactivate the header
+
 <br>
 
-8. `'PermissionPolicy'` for calling the PermissionsPolicy class to set the user-defined values
+8. `'PermissionPolicy'` for calling the PermissionsPolicy class to set the user-defined values or activate/deactivate the header
+
 <br>
 
-9. `'coep'` for calling CrossOriginEmbedderPolicy class to set the user-defined values
+9.  `'coep'` for calling CrossOriginEmbedderPolicy class to set the user-defined values or activate/deactivate the header
+
 <br>
 
-10. `'coop'` for calling CrossOriginOpenerPolicy class to set the user-defined values
+10.  `'coop'` for calling CrossOriginOpenerPolicy class to set the user-defined values or activate/deactivate the header
+
 <br>
 
-11. `'corp'` for calling CrossOriginResourcePolicy class to set the user-defined values
+11.  `'corp'` for calling CrossOriginResourcePolicy class to set the user-defined values or activate/deactivate the header
+
 <br>
 
-12. `'clearSiteData'` for calling ClearSiteData class to set the user-defined values
+12.  `'clearSiteData'` for calling ClearSiteData class to set the user-defined values or activate/deactivate the header
+
 <br>
 
-13. `'cacheControl'` for calling CacheControl class to set the user-defined values
+13.  `'cacheControl'` for calling CacheControl class to set the user-defined values or activate/deactivate the header
+
+<br>
+
+14. `'xcto'` for activating/deactivating X-Content-Type-Options header
+
+<br>
+
+15. `'xdo'` for activating/deactivating X-Download-Options header
+
+<br>
+
+16. `'xss'` for activating/deactivating x-xss-protection header
+
+<br>
+
+17. `'oac'` for activating/deactivating Origin-Agent-Cluster header
 
 ```python
 # Example of the values
-SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'hsts': {'max-age': 4, 'preload': True}, 'wshsts': {'max-age': 10, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'PermissionPolicy': {'accelerometer': ['self', '"https://example.com/"'], 'document-domain': ['*']}, 'coep': {'Cross-Origin-Embedder-Policy': 'require-corp'}, 'coop': {'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'}, 'corp': {'Cross-Origin-Resource-Policy': 'same-site'}, 'clearSiteData': {'cache': True, 'storage': True}, 'cacheControl': {'public': True, 's-maxage': 600}}, Routes=['/login/{id}', '/logout/{id:uuid}/username/{username:string}'])
+SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': {'X-Frame-Options': 'SAMEORIGIN'}, 'hsts': {'max-age': 4, 'preload': True}, 'wshsts': {'max-age': 10, 'preload': True}, 'xcdp': {'X-Permitted-Cross-Domain-Policies': 'all'}, 'xdns': {'X-DNS-Prefetch-Control': 'on'}, 'referrer': {'Referrer-Policy': 'no-referrer'}, 'PermissionPolicy': {'accelerometer': ['self', '"https://example.com/"'], 'document-domain': ['*']}, 'coep': {'Cross-Origin-Embedder-Policy': 'require-corp'}, 'coop': {'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'}, 'corp': {'Cross-Origin-Resource-Policy': 'same-site'}, 'clearSiteData': {'cache': True, 'storage': True}, 'cacheControl': {'public': True, 's-maxage': 600}, 'xss': False}, Routes=['/login/{id}', '/logout/{id:uuid}/username/{username:string}'])
 ```
 ### Middleware Classes
 
@@ -174,9 +215,11 @@ Nonce Processor
 ```python
     # Some Code
     nonce = Nonce_Processor(DEFAULT_ENTROPY=90)  # inject the nonce variable into the jinja or html
+    
     # Some Code
 ```
 DEFAULT_ENTROPY is used to set the nonce length.
+
 The nonce processor needs to be called on the route the following example is of FastApi calling the nonce processor on the route
 
 ```python
@@ -190,6 +233,7 @@ app = FastAPI()
 async def root():
     # some code
     nonce = Nonce_Processor(DEFAULT_ENTROPY=90)  # inject the nonce variable into the jinja or html
+
     # some more code
 ```
 ContentSecurityPolicy
@@ -202,7 +246,7 @@ from Secweb.ContentSecurityPolicy import Nonce_Processor
 
 app = FastAPI()
 
-app.add_middleware(ContentSecurityPolicy, Option={'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': []}, script_nonce=False, style_nonce=False)
+app.add_middleware(ContentSecurityPolicy, Option={'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': []}, script_nonce=False, style_nonce=False, report_only=False)
 ```
 
 This is for the Starlette
@@ -213,13 +257,18 @@ from Secweb.ContentSecurityPolicy import Nonce_Processor
 
 app = Starlette()
 
-app.add_middleware(ContentSecurityPolicy, Option={'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': []}, script_nonce=False, style_nonce=False)
+app.add_middleware(ContentSecurityPolicy, Option={'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': []}, script_nonce=False, style_nonce=False, report_only=False)
 ```
 script_nonce=False This is the nonce flag for inline Js
 
 style_nonce=False This is the nonce flag for inline css
 
+report_only=False This is the report only flag which makes csp report only header
+
 For more detail on CSP header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy)
+
+
+For more detail on CSP-report-only header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy-Report-Only)
 
 #### Origin Agent Cluster
 

@@ -21,11 +21,6 @@ def __path_regex_builder__(path):
     Raises:
         ValueError: If there are duplicated parameter names in the path.
         AssertionError: If an unknown path convertor is encountered.
-
-    Example:
-        path = "/users/{id}"
-        pattern = __path_regex_builder__(path)
-        print(pattern.match("/users/123"))  # <re.Match object; span=(0, 11), match='/users/123'>
     """
     is_host = not path.startswith("/")
 
