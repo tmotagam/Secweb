@@ -5,6 +5,7 @@
   Copyright 2021-2024, Motagamwala Taha Arif Ali '''
 
 from secrets import token_urlsafe
+from warnings import warn
 from starlette.datastructures import MutableHeaders
 
 nonce = None
@@ -25,18 +26,19 @@ def Nonce_Processor(DEFAULT_ENTROPY=90):
     return nonce
 
 class ContentSecurityPolicy:
-    ''' ContentSecurityPolicy class sets Content-Security-Policy header.
+    ''' ContentSecurityPolicy class sets Content-Security-Policy/Content-Security-Policy-Report-Only header.
 
     Example :
-        app.add_middleware(ContentSecurityPolicy, Option={}, script_nonce=False, style_nonce=True)
+        app.add_middleware(ContentSecurityPolicy, Option={}, script_nonce=False, report_only=False, style_nonce=True)
 
     Parameters :
         script_nonce (bool, optional): The script_nonce parameter. Defaults to False.
         style_nonce (bool, optional): The style_nonce parameter. Defaults to False.
+        report_only (bool, optional): The report_only parameter. Defaults to False.
         Option (dict, optional): The Option parameter. Defaults to {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}.
     
     '''
-    def __init__(self, app, script_nonce: bool = False, style_nonce: bool = False, Option = {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}):
+    def __init__(self, app, script_nonce: bool = False, report_only: bool = False, style_nonce: bool = False, Option = {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}):
         """
         Initialize the class with the given parameters.
 
@@ -51,6 +53,8 @@ class ContentSecurityPolicy:
         """
         self.app = app
         self.PolicyString = ''
+        self.ReportOnly = report_only
+        self.HeaderName = 'Content-Security-Policy' if not report_only else 'Content-Security-Policy-Report-Only'
         self.script_nonce = script_nonce
         self.style_nonce = style_nonce
         Policy = ['child-src', 'connect-src', 'default-src', 'font-src', 'frame-src', 'img-src', 'manifest-src', 'media-src', 'object-src', 'script-src', 'script-src-elem', 'script-src-attr', 'style-src', 'style-src-elem', 'style-src-attr', 'worker-src', 'base-uri', 'plugin-types', 'sandbox', 'form-action', 'frame-ancestors', 'navigate-to', 'report-uri', 'report-to', 'block-all-mixed-content', 'require-trusted-types-for', 'trusted-types', 'upgrade-insecure-requests']
@@ -72,6 +76,14 @@ class ContentSecurityPolicy:
             None
         """
         keys = list(Option.keys())
+
+        if self.ReportOnly is True and 'report-to' not in keys:
+            if self.ReportOnly is True and 'report-uri' not in keys:
+                raise SyntaxError('report-to and/or report-uri are compulsory for Content-Security-Policy-report-only')
+        
+        
+        if self.ReportOnly is True and 'sandbox' in keys:
+            warn('sandbox option is not supported in report-only policy', SyntaxWarning, 2)
 
         if self.script_nonce and 'script-src' not in keys:
             raise SyntaxError('script-src is compulsory for nonce')
@@ -139,13 +151,13 @@ class ContentSecurityPolicy:
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 if self.script_nonce is True and self.style_nonce is True:
-                    headers.append('Content-Security-Policy', PS.format(script_nonce_value=nonce, style_nonce_value=nonce))
+                    headers.append(self.HeaderName, PS.format(script_nonce_value=nonce, style_nonce_value=nonce))
                 elif self.style_nonce is True:
-                    headers.append('Content-Security-Policy', PS.format(style_nonce_value=nonce))
+                    headers.append(self.HeaderName, PS.format(style_nonce_value=nonce))
                 elif self.script_nonce is True:
-                    headers.append('Content-Security-Policy', PS.format(script_nonce_value=nonce))
+                    headers.append(self.HeaderName, PS.format(script_nonce_value=nonce))
                 else:
-                    headers.append('Content-Security-Policy', PS)
+                    headers.append(self.HeaderName, PS)
 
             await send(message)
 
