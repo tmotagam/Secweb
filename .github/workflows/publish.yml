@@ -59,7 +59,7 @@ jobs:
 
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/Secweb
+      url: https://test.pypi.org/p/Secweb-tmotagam
 
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
