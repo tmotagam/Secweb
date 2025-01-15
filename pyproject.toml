@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Secweb"
-version = "1.11.0"
+version = "1.18.1"
 authors = [ { name="Motagamwala Taha Arif Ali", email = "tahaar5321@gmail.com" }, ]
 description = "Secweb is a pack of security middlewares for fastApi and starlette servers it includes CSP, HSTS, and many more"
 readme = "README.md"
