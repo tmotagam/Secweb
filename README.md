@@ -216,7 +216,7 @@ ContentSecurityPolicy class sets the csp header.
 
 ```python
 from fastapi import FastAPI
-from Secweb.ContentSecurityPolicy import Nonce_Processor
+from Secweb.ContentSecurityPolicy import ContentSecurityPolicy
 
 app = FastAPI()
 
@@ -227,7 +227,7 @@ app.add_middleware(ContentSecurityPolicy, Option={'default-src': ["'self'"], 'ba
 
 ```python
 from starlette.applications import Starlette
-from Secweb.ContentSecurityPolicy import Nonce_Processor
+from Secweb.ContentSecurityPolicy import ContentSecurityPolicy
 
 
 app = Starlette()
