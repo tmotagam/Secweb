@@ -3,8 +3,22 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+from typing import TypedDict
 
+from starlette.applications import Starlette
 from starlette.datastructures import MutableHeaders
+from starlette.types import Send, Receive, Scope, Message
+
+HSTSOption = TypedDict(
+    "HSTSOption",
+    {
+        "max-age": int,
+        "includeSubDomains": bool,
+        "preload": bool,
+    },
+    total=False,
+)
+
 
 class HSTS:
     ''' HSTS class sets Strict-Transport-Security Header.
@@ -16,13 +30,17 @@ class HSTS:
         Option (dict, optional): The options for the class. Defaults to {'max-age': 432000, 'includeSubDomains': True, 'preload': False}.
 
     '''
-    def __init__(self, app, Option = {'max-age': 432000, 'includeSubDomains': True, 'preload': False}):
+    def __init__(
+            self,
+            app: Starlette,
+            Option: HSTSOption = {'max-age': 432000, 'includeSubDomains': True, 'preload': False},
+    ):
         """
         Initializes an instance of the class.
 
         Args:
             app (object): The application object.
-            Option (dict, optional): The options for the class. Defaults to {'max-age': 432000, 'includeSubDomains': True, 'preload': False}.
+            Option (HSTSOption, optional): The options for the class. Defaults to {'max-age': 432000, 'includeSubDomains': True, 'preload': False}.
 
         Raises:
             SyntaxError: If 'max-age' is not a positive integer or if the 'Option' dictionary is not valid.
@@ -50,7 +68,7 @@ class HSTS:
         else:
             raise SyntaxError('Strict-Transport-Security has 3 options 1> "max-age=<expire-time>" <- This is the compulsory option 2> "includeSubDomains" 3> "preload"')
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -65,7 +83,7 @@ class HSTS:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Strict_Transport_Security(message):
+        async def set_Strict_Transport_Security(message: Message) -> None:
             """
             Sets the Strict-Transport-Security header in the HTTP response start event.
 

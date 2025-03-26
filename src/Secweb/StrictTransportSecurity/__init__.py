@@ -1,1 +1,6 @@
-from .StrictTransportSecurityMiddleware import HSTS
+from .StrictTransportSecurityMiddleware import HSTS, HSTSOption
+
+__all__ = [
+    "HSTS",
+    "HSTSOption",
+]

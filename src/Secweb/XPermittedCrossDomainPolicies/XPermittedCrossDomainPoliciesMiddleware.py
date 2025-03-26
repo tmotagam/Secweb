@@ -3,9 +3,25 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+from __future__ import annotations
 
+from typing import Literal, TypedDict
 from warnings import warn
+
+from starlette.applications import Starlette
 from starlette.datastructures import MutableHeaders
+from starlette.types import Send, Receive, Scope, Message
+from typing_extensions import TypeAlias
+
+TXPermittedCrossDomainPoliciesOption: TypeAlias = Literal['none', 'master-only', 'by-content-type', 'all']
+
+XPermittedCrossDomainPoliciesOption = TypedDict(
+    "XPermittedCrossDomainPoliciesOption",
+    {
+        "X-Permitted-Cross-Domain-Policies": TXPermittedCrossDomainPoliciesOption,
+    },
+)
+
 
 class XPermittedCrossDomainPolicies:
     ''' XPermittedCrossDomainPolicies class sets X-Permitted-Cross-Domain-Policies header.
@@ -17,7 +33,11 @@ class XPermittedCrossDomainPolicies:
         Option (str): Optional cross-domain policy option. Default is 'none'.
 
     '''
-    def __init__(self, app, Option = 'none'):
+    def __init__(
+            self,
+            app: Starlette,
+            Option: XPermittedCrossDomainPoliciesOption | TXPermittedCrossDomainPoliciesOption = 'none',
+    ):
         """
         Initializes the class with the given app and optional cross-domain policy option.
 
@@ -42,7 +62,7 @@ class XPermittedCrossDomainPolicies:
             if self.Option not in Policies:
                 raise SyntaxError('XPermittedCrossDomainPolicies has four values 1> "none" 2> "master-only" 3> "by-content-type" 4> "all"') 
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -57,7 +77,7 @@ class XPermittedCrossDomainPolicies:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_x_Permitted_Cross_Domain_Policies(message):
+        async def set_x_Permitted_Cross_Domain_Policies(message: Message) -> None:
             """
             Set the X-Permitted-Cross-Domain-Policies header in the response headers.
 

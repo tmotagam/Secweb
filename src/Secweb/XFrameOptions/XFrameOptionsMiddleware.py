@@ -3,9 +3,25 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+from __future__ import annotations
 
+from typing import Literal, TypedDict
 from warnings import warn
+
+from starlette.applications import Starlette
 from starlette.datastructures import MutableHeaders
+from starlette.types import Scope, Receive, Send, Message
+from typing_extensions import TypeAlias
+
+TXFrameOption: TypeAlias = Literal['SAMEORIGIN', 'DENY']
+
+XFrameOption = TypedDict(
+    "XFrameOption",
+    {
+        "X-Frame-Options": TXFrameOption,
+    },
+)
+
 
 class XFrame:
     ''' XFrame class sets X-Frame-Options header.
@@ -17,7 +33,7 @@ class XFrame:
         Option (str, optional): Option for the function. Defaults to 'DENY'.
 
     '''
-    def __init__(self, app, Option = 'DENY'):
+    def __init__(self, app: Starlette, Option: XFrameOption | TXFrameOption = 'DENY'):
         """
         Initializes a new instance of the class.
 
@@ -41,7 +57,7 @@ class XFrame:
             if self.Option != 'SAMEORIGIN' and self.Option != 'DENY':
                 raise SyntaxError('XFrame has two values only 1> "DENY" 2> "SAMEORIGIN"') 
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -56,7 +72,7 @@ class XFrame:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_x_Frame_Options(message):
+        async def set_x_Frame_Options(message: Message) -> None:
             """
             Sets the 'X-Frame-Options' header in the response header.
 

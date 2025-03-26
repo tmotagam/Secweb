@@ -3,12 +3,19 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+from __future__ import annotations
 
+from typing import TypedDict, Literal
+
+from starlette.applications import Starlette
 from starlette.datastructures import MutableHeaders
 from starlette.convertors import CONVERTOR_TYPES
-from re import compile, escape
+from re import compile, escape, Pattern
 
-def __path_regex_builder__(path):
+from starlette.types import Send, Receive, Scope, Message
+
+
+def __path_regex_builder__(path: str) -> Pattern[str]:
     """
     Generate a regular expression pattern for a given path.
 
@@ -25,7 +32,7 @@ def __path_regex_builder__(path):
     is_host = not path.startswith("/")
 
     path_regex = "^"
-    duplicated_params = set()
+    duplicated_params: set[str] = set()
 
     idx = 0
     for match in compile("{([a-zA-Z_][a-zA-Z0-9_]*)(:[a-zA-Z_][a-zA-Z0-9_]*)?}").finditer(path):
@@ -54,6 +61,26 @@ def __path_regex_builder__(path):
 
     return compile(path_regex)
 
+
+ClearSiteDataOption = TypedDict(
+    "ClearSiteDataOption",
+    {
+        "cache": bool,
+        "cookies": bool,
+        "storage": bool,
+        "*": Literal[False]
+    },
+    total=False,
+)
+
+ClearSiteDataAllowAllOption = TypedDict(
+    "ClearSiteDataAllowAllOption",
+    {
+        "*": Literal[True],
+    },
+)
+
+
 class ClearSiteData:
     ''' ClearSiteData class sets Clear-Site-Data header.
 
@@ -61,17 +88,22 @@ class ClearSiteData:
         app.add_middleware(ClearSiteData, Option={}, Routes=[])
 
     Parameter:
-        Option (dict, optional): The options for the class. Defaults to {'cache': True, 'cookies': True, 'storage': True}.
+        Option (ClearSiteDataOption, optional): The options for the class. Defaults to {'cache': True, 'cookies': True, 'storage': True}.
         Routes (list, optional): The list of routes. Defaults to [].
     
     '''
-    def __init__(self, app, Option = {'cache': True, 'cookies': True, 'storage': True}, Routes = []):
+    def __init__(
+            self,
+            app: Starlette,
+            Option: ClearSiteDataOption | ClearSiteDataAllowAllOption = {'cache': True, 'cookies': True, 'storage': True},
+            Routes: list[str] = [],
+    ):
         """
         Initializes the class with the provided parameters.
 
         Args:
             app (object): The application object.
-            Option (dict, optional): The options for the class. Defaults to {'cache': True, 'cookies': True, 'storage': True}.
+            Option (ClearSiteDataOption, optional): The options for the class. Defaults to {'cache': True, 'cookies': True, 'storage': True}.
             Routes (list, optional): The list of routes. Defaults to [].
 
         Raises:
@@ -89,7 +121,7 @@ class ClearSiteData:
 
         if '*' in Option and Option['*'] is True:
             self.policyString += '"*"'
-            Option.pop('*')
+            Option.pop('*')  # type: ignore[misc]
         else:
             if 'cache' in Option and Option['cache'] is True:
                 self.policyString += '"cache"' if list(Option.keys()).__len__() == 1 else '"cache", '
@@ -104,7 +136,7 @@ class ClearSiteData:
         if list(Option.keys()).__len__() != 0 :
             raise SyntaxError('Clear-Site-Data has 4 options 1> "cache" 2> "cookies" 3> "storage" 4> "*"')
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -119,7 +151,7 @@ class ClearSiteData:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
         
-        async def set_route(message):
+        async def set_route(message: Message) -> None:
             """
             Sets the header for the given route.
 

@@ -1,1 +1,7 @@
-from .ReferrerPolicyMiddleware import ReferrerPolicy
+from .ReferrerPolicyMiddleware import ReferrerPolicy, TReferrerPolicyOption, ReferrerPolicyOption
+
+__all__ = [
+    "ReferrerPolicy",
+    "TReferrerPolicyOption",
+    "ReferrerPolicyOption",
+]

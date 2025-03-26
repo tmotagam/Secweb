@@ -3,9 +3,26 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+from __future__ import annotations
 
+from typing import TypedDict, Literal
 from warnings import warn
+
+from starlette.applications import Starlette
 from starlette.datastructures import MutableHeaders
+from starlette.types import Scope, Receive, Send, Message
+from typing_extensions import TypeAlias
+
+TCrossOriginEmbedderPolicyOption: TypeAlias = Literal['require-corp', 'unsafe-none', 'credentialless']
+
+CrossOriginEmbedderPolicyOption = TypedDict(
+    "CrossOriginEmbedderPolicyOption",
+    {
+        "Cross-Origin-Embedder-Policy": TCrossOriginEmbedderPolicyOption,
+    },
+    total=False,
+)
+
 
 class CrossOriginEmbedderPolicy:
     ''' CrossOriginEmbedderPolicy class sets Cross-Origin-Embedder-Policy header.
@@ -17,7 +34,11 @@ class CrossOriginEmbedderPolicy:
         Option: The option for the class. Defaults to 'unsafe-none'.
     
     '''
-    def __init__(self, app, Option = 'unsafe-none'):
+    def __init__(
+            self,
+            app: Starlette,
+            Option: TCrossOriginEmbedderPolicyOption | CrossOriginEmbedderPolicyOption = 'unsafe-none',
+    ):
         """
         Initializes the class with the given `app` and `Option` parameters.
 
@@ -39,7 +60,7 @@ class CrossOriginEmbedderPolicy:
             if self.Option not in Policies:
                 raise SyntaxError('CrossOriginEmbedderPolicy has 3 options 1> "unsafe-none" 2> "require-corp" 3> "credentialless"')
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -54,7 +75,7 @@ class CrossOriginEmbedderPolicy:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Cross_Origin_Embedder_Policy(message):
+        async def set_Cross_Origin_Embedder_Policy(message: Message) -> None:
             """
             Set the Cross-Origin-Embedder-Policy header in the response headers.
             

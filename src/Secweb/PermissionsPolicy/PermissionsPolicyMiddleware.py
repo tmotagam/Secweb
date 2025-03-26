@@ -3,9 +3,54 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
-
+from typing import TypedDict
 from warnings import warn
+
+from starlette.applications import Starlette
 from starlette.datastructures import MutableHeaders
+from starlette.types import Message, Scope, Receive, Send
+
+PermissionsPolicyOption = TypedDict(
+    "PermissionsPolicyOption",
+    {
+        "accelerometer": list[str],
+        "ambient-light-sensor": list[str],
+        "attribution-reporting": list[str],
+        "autoplay": list[str],
+        "bluetooth": list[str],
+        "browsing-topics": list[str],
+        "camera": list[str],
+        "compute-pressure": list[str],
+        "display-capture": list[str],
+        "document-domain": list[str],
+        "encrypted-media": list[str],
+        "fullscreen": list[str],
+        "geolocation": list[str],
+        "gyroscope": list[str],
+        "hid": list[str],
+        "identity-credentials-get": list[str],
+        "idle-detection": list[str],
+        "local-fonts": list[str],
+        "magnetometer": list[str],
+        "microphone": list[str],
+        "midi": list[str],
+        "otp-credentials": list[str],
+        "payment": list[str],
+        "picture-in-picture": list[str],
+        "publickey-credentials-create": list[str],
+        "publickey-credentials-get": list[str],
+        "screen-wake-lock": list[str],
+        "serial": list[str],
+        "storage-access": list[str],
+        "usb": list[str],
+        "web-share": list[str],
+        'window-management':list[str]
+    },
+    total=False,
+
+)
+
+
 
 class PermissionsPolicy:
     '''PermissionsPolicy class sets Permissions-Policy header.
@@ -17,7 +62,7 @@ class PermissionsPolicy:
        Option (dict): The options for the permission policy.
     
     '''
-    def __init__(self, app, Option = {}):
+    def __init__(self, app: Starlette, Option: PermissionsPolicyOption = {}):
         """
         Initializes a new instance of the class.
 
@@ -43,7 +88,7 @@ class PermissionsPolicy:
             warn("Permission-Policy header is still under working draft, browsers might give warnings and errors", SyntaxWarning, 2)
             self.__PolicyCheck__(Option, Policy)
     
-    def __PolicyCheck__(self, Option, Policy):
+    def __PolicyCheck__(self, Option: PermissionsPolicyOption, Policy: list[str]) -> None:
         """
         Generate a policy string based on the given Option and Policy dictionaries.
 
@@ -93,7 +138,7 @@ class PermissionsPolicy:
                 else:
                     self.PolicyString += ' '
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -108,7 +153,7 @@ class PermissionsPolicy:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Permissions_Policy(message):
+        async def set_Permissions_Policy(message: Message) -> None:
             """
             Set the Permissions-Policy header in the HTTP response headers.
 

@@ -3,8 +3,30 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+from typing import TypedDict
 
+from starlette.applications import Starlette
 from starlette.datastructures import MutableHeaders
+from starlette.types import Send, Receive, Scope, Message
+
+CacheControlOption = TypedDict(
+    "CacheControlOption",
+    {
+        "max-age": int,  # The maximum age of the cache in seconds
+        "s-maxage": int,  # The maximum age of the shared cache in seconds
+        "no-cache": bool,  # Specifies whether the cache should be bypassed
+        "no-store": bool,  # Specifies whether the cache should not store any response
+        "no-transform": bool,  # Specifies whether the cache should not transform the response
+        "must-revalidate": bool,  # Specifies whether the cache must revalidate the response
+        "proxy-revalidate": bool,  # Specifies whether the cache must revalidate the response on the proxy server
+        "must-understand": bool,  # Specifies whether the cache must understand the response
+        "private": bool,  # Specifies whether the cache response is specific to a user
+        "public": bool,  # Specifies whether the cache response is public
+        "immutable": bool,  # Specifies whether the cache response is immutable
+        "stale-while-revalidate": int,  # The maximum age of stale content in seconds while revalidating
+    },
+    total=False,
+)
 
 class CacheControl:
     ''' CacheControl class sets Cache-Control header.
@@ -13,22 +35,9 @@ class CacheControl:
         app.add_middleware(CacheControl, Option={})
 
     Parameter:
-        Option (dict): Optional dictionary containing cache control options.
-            - 'max-age' (int): The maximum age of the cache in seconds.
-            - 's-maxage' (int): The maximum age of the shared cache in seconds.
-            - 'no-cache' (bool): Specifies whether the cache should be bypassed.
-            - 'no-store' (bool): Specifies whether the cache should not store any response.
-            - 'no-transform' (bool): Specifies whether the cache should not transform the response.
-            - 'must-revalidate' (bool): Specifies whether the cache must revalidate the response.
-            - 'proxy-revalidate' (bool): Specifies whether the cache must revalidate the response on the proxy server.
-            - 'must-understand' (bool): Specifies whether the cache must understand the response.
-            - 'private' (bool): Specifies whether the cache response is specific to a user.
-            - 'public' (bool): Specifies whether the cache response is public.
-            - 'immutable' (bool): Specifies whether the cache response is immutable.
-            - 'stale-while-revalidate' (int): The maximum age of stale content in seconds while revalidating.
-    
+        Option (CacheControlOptions): Optional dictionary containing cache control options.
     '''
-    def __init__(self, app, Option = {'max-age': 86400, 'private': True }):
+    def __init__(self, app: Starlette, Option: CacheControlOption = {'max-age': 86400, 'private': True}):
         """
         Initializes a new instance of the class.
 
@@ -95,7 +104,7 @@ class CacheControl:
         if list(Option.keys()).__len__() != 0 :
             raise SyntaxError('Cache-Control has 12 options 1> "max-age" 2> "s-maxage" 3> "no-cache" 4> "no-store" 5> "no-transform" 6> "must-revalidate" 7> "proxy-revalidate" 8> "must-understand" 9> "private" 10> "public" 11> "immutable" 12> "stale-while-revalidate" ')
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -110,7 +119,7 @@ class CacheControl:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Cache_Control(message):
+        async def set_Cache_Control(message: Message) -> None:
             """
             Set the Cache-Control header in the HTTP response.
 

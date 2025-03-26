@@ -3,9 +3,25 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+from __future__ import annotations
 
+from typing import Literal, TypedDict
 from warnings import warn
+
+from starlette.applications import Starlette
 from starlette.datastructures import MutableHeaders
+from starlette.types import Scope, Receive, Send, Message
+from typing_extensions import TypeAlias
+
+TCrossOriginOpenerPolicyOption: TypeAlias = Literal["unsafe-none", "same-origin-allow-popups", "same-origin"]
+
+CrossOriginOpenerPolicyOption = TypedDict(
+    "CrossOriginOpenerPolicyOption",
+    {
+        "Cross-Origin-Opener-Policy": TCrossOriginOpenerPolicyOption,
+    },
+    total=False,
+)
 
 class CrossOriginOpenerPolicy:
     ''' CrossOriginOpenerPolicy class sets Cross-Origin-Opener-Policy header.
@@ -17,7 +33,11 @@ class CrossOriginOpenerPolicy:
         Option (str): The option for the class. Defaults to 'unsafe-none'.
     
     '''
-    def __init__(self, app, Option = 'unsafe-none'):
+    def __init__(
+            self,
+            app: Starlette,
+            Option: TCrossOriginOpenerPolicyOption | CrossOriginOpenerPolicyOption = 'unsafe-none',
+    ):
         """
         Initializes an instance of the class.
 
@@ -42,7 +62,7 @@ class CrossOriginOpenerPolicy:
             if self.Option not in Policies:
                 raise SyntaxError('CrossOriginOpenerPolicy has 3 options 1> "unsafe-none" 2> "same-origin-allow-popups" 3> "same-origin"')
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -57,7 +77,7 @@ class CrossOriginOpenerPolicy:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Cross_Origin_Opener_Policy(message):
+        async def set_Cross_Origin_Opener_Policy(message: Message) -> None:
             """
             Sets the Cross-Origin-Opener-Policy header in the HTTP response headers.
             

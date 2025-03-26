@@ -3,9 +3,24 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
-
+from __future__ import annotations
+from typing import Literal, TypedDict
 from warnings import warn
+
+from starlette.applications import Starlette
 from starlette.datastructures import MutableHeaders
+from starlette.types import Scope, Receive, Send, Message
+from typing_extensions import TypeAlias
+
+TXDNSPrefetchControlOption: TypeAlias = Literal['on', 'off']
+
+XDNSPrefetchControlOption = TypedDict(
+    "XDNSPrefetchControlOption",
+    {
+        "X-DNS-Prefetch-Control": TXDNSPrefetchControlOption,
+    },
+)
+
 
 class XDNSPrefetchControl:
     ''' XDNSPrefetchControl class sets X-DNS-Prefetch-Control header.
@@ -17,7 +32,11 @@ class XDNSPrefetchControl:
         Option (str): Optional. The option for the class object. Defaults to 'off'.
     
     '''
-    def __init__(self, app, Option = 'off'):
+    def __init__(
+            self,
+            app: Starlette,
+            Option: XDNSPrefetchControlOption | TXDNSPrefetchControlOption = 'off',
+    ):
         """
         Initializes the class object.
 
@@ -38,7 +57,7 @@ class XDNSPrefetchControl:
             if self.Option != 'on' and self.Option != 'off':
                 raise SyntaxError('XDNSPrefetchControl has two values only 1> "on" 2> "off"') 
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self,scope: Scope, receive: Receive, send: Send) -> None:
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -53,7 +72,7 @@ class XDNSPrefetchControl:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_x_DNS_Prefetch_Control(message):
+        async def set_x_DNS_Prefetch_Control(message: Message) -> None:
             """
             Sets the value of the `X-DNS-Prefetch-Control` header in the response headers.
 

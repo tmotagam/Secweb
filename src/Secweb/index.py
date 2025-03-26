@@ -3,24 +3,47 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+from typing import TypedDict, Literal, Union
 
-from .WsStrictTransportSecurity.WsStrictTransportSecurityMiddleware import WsHSTS
-from .XFrameOptions.XFrameOptionsMiddleware import XFrame
-from .CrossOriginEmbedderPolicy.CrossOriginEmbedderPolicyMiddleware import CrossOriginEmbedderPolicy
-from .CrossOriginOpenerPolicy.CrossOriginOpenerPolicyMiddleware import CrossOriginOpenerPolicy
-from .CrossOriginResourcePolicy.CrossOriginResourcePolicyMiddleware import CrossOriginResourcePolicy
-from .xXSSProtection.xXSSProtectionMiddleware import xXSSProtection
-from .StrictTransportSecurity.StrictTransportSecurityMiddleware import HSTS
-from .XPermittedCrossDomainPolicies.XPermittedCrossDomainPoliciesMiddleware import XPermittedCrossDomainPolicies
-from .XDownloadOptions.XDownloadOptionsMiddleware import XDownloadOptions
-from .XDNSPrefetchControl.XDNSPrefetchControlMiddleware import XDNSPrefetchControl
-from .XContentTypeOptions.XContentTypeOptionsMiddleware import XContentTypeOptions
-from .ReferrerPolicy.ReferrerPolicyMiddleware import ReferrerPolicy
-from .OriginAgentCluster.OriginAgentClusterMiddleware import OriginAgentCluster
-from .ContentSecurityPolicy.ContentSecurityPolicyMiddleware import ContentSecurityPolicy
-from .PermissionsPolicy.PermissionsPolicyMiddleware import PermissionsPolicy
-from .ClearSiteData.ClearSiteDataMiddleware import ClearSiteData
-from .CacheControl.CacheControlMiddleware import CacheControl
+from starlette.applications import Starlette
+
+from .WsStrictTransportSecurity import WsHSTS, WsHSTSOption
+from .XFrameOptions import XFrame, TXFrameOption, XFrameOption
+from .CrossOriginEmbedderPolicy import CrossOriginEmbedderPolicy, CrossOriginEmbedderPolicyOption, TCrossOriginEmbedderPolicyOption
+from .CrossOriginOpenerPolicy import CrossOriginOpenerPolicy, TCrossOriginOpenerPolicyOption, CrossOriginOpenerPolicyOption
+from .CrossOriginResourcePolicy import CrossOriginResourcePolicy, TCrossOriginResourcePolicyOption, CrossOriginResourcePolicyOption
+from .xXSSProtection import xXSSProtection
+from .StrictTransportSecurity import HSTS, HSTSOption
+from .XPermittedCrossDomainPolicies import XPermittedCrossDomainPolicies, TXPermittedCrossDomainPoliciesOption, XPermittedCrossDomainPoliciesOption
+from .XDownloadOptions import XDownloadOptions
+from .XDNSPrefetchControl import XDNSPrefetchControl, TXDNSPrefetchControlOption, XDNSPrefetchControlOption
+from .XContentTypeOptions import XContentTypeOptions
+from .ReferrerPolicy import ReferrerPolicy, TReferrerPolicyOption, ReferrerPolicyOption
+from .OriginAgentCluster import OriginAgentCluster
+from .ContentSecurityPolicy import ContentSecurityPolicy, ContentSecurityPolicyOption
+from .PermissionsPolicy import PermissionsPolicy, PermissionsPolicyOption
+from .ClearSiteData import ClearSiteData, ClearSiteDataOption
+from .CacheControl import CacheControl, CacheControlOption
+
+
+class SecWebOption(TypedDict, total=False):
+    xdo: bool  # X-Download-Options
+    xcto: bool  # X-Content-Type-Options
+    oac: bool  # Origin-Agent-Cluster
+    xss: bool  # X-XSS-Protection
+    csp: Union[Literal[False], ContentSecurityPolicyOption]  # Content-Security-Policy
+    coop: Union[Literal[False], TCrossOriginOpenerPolicyOption, CrossOriginOpenerPolicyOption]  # Cross-Origin-Opener-Policy
+    coep: Union[Literal[False], TCrossOriginEmbedderPolicyOption, CrossOriginEmbedderPolicyOption]  # Cross-Origin-Embedder-Policy
+    corp: Union[Literal[False], TCrossOriginResourcePolicyOption, CrossOriginResourcePolicyOption]  # Cross-Origin-Resource-Policy
+    referrer: Union[Literal[False], TReferrerPolicyOption, ReferrerPolicyOption]  # Referrer-Policy
+    xdns: Union[Literal[False], TXDNSPrefetchControlOption, XDNSPrefetchControlOption]  # X-DNS-Prefetch-Control
+    xcdp: Union[Literal[False], TXPermittedCrossDomainPoliciesOption, XPermittedCrossDomainPoliciesOption]  # X-Permitted-Cross-Domain-Policies
+    hsts: Union[Literal[False], HSTSOption]  # Strict-Transport-Security
+    wshsts: Union[Literal[False], WsHSTSOption]  # WebSocket-Strict-Transport-Security
+    xframe: Union[Literal[False], TXFrameOption, XFrameOption]  # X-Frame-Options
+    clearSiteData: Union[Literal[False], ClearSiteDataOption]  # Clear-Site-Data
+    cacheControl: Union[Literal[False], CacheControlOption]  # Cache-Control
+    PermissionPolicy: Union[Literal[False], PermissionsPolicyOption]  # Permissions-Policy
 
 class SecWeb:
     """This Class is used for initializing all the middlewares CSP, COOP, etc
@@ -43,53 +66,16 @@ class SecWeb:
 
      report_only=False This is an optional flag it will set the Content-Security-Policy-Report-Only header instead of the Content-Security-Policy header
 
-    Values :
-        'csp' for ContentSecurityPolicy
-
-        'coop' for CrossOriginOpenerPolicy
-
-        'coep' for CrossOriginEmbedderPolicy
-
-        'corp' for CrossOriginResourcePolicy
-
-        'referrer' for ReferrerPolicy
-
-        'xdns' for XDNSPrefetchControl
-
-        'xcdp' for XPermittedCrossDomainPolicies
-
-        'hsts' for HSTS/StrictTransportSecurity
-
-        'wshsts' for HSTS/StrictTransportSecurity for websockets
-
-        'xframe' for XFrame
-
-        'PermissionPolicy' for PermissionPoilcy
-
-        'clearSiteData' for Clear-Site-Data
-
-        'cacheControl' for Cache-Control
-
-        'xcto' for X-Content-Type-Options
-
-        'xdo' for X-Download-Options
-
-        'xss' for x-xss-protection
-
-        'oac' for Origin-Agent-Cluster
-
-    This Values are for the Option parameter
-    
     """
 
     def __init__(
         self,
-        app,
-        Option = {},
-        Routes = [],
-        script_nonce = False,
-        style_nonce = False,
-        report_only = False
+        app: Starlette,
+        Option: SecWebOption = {},
+        Routes: list[str] = [],
+        script_nonce: bool = False,
+        style_nonce: bool = False,
+        report_only: bool = False
     ) -> None:
         """
         Initializes an instance of the class.
@@ -121,7 +107,7 @@ class SecWeb:
             app.add_middleware(CrossOriginEmbedderPolicy)
             app.add_middleware(CrossOriginOpenerPolicy)
             app.add_middleware(CrossOriginResourcePolicy)
-            if Routes.__len__() > 0:
+            if len(Routes) > 0:
                 app.add_middleware(ClearSiteData, Routes=Routes)
         else:
             if "xdo" in Option.keys() and Option["xdo"] is False:

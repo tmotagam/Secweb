@@ -3,8 +3,9 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
-
+from starlette.applications import Starlette
 from starlette.datastructures import MutableHeaders
+from starlette.types import Send, Receive, Scope, Message
 
 class XContentTypeOptions:
     ''' XContentTypeOptions sets the X-Content-Type-Options header.
@@ -13,7 +14,7 @@ class XContentTypeOptions:
         app.add_middleware(XContentTypeOptions)
     
     '''
-    def __init__(self, app):
+    def __init__(self, app: Starlette):
         """
         Initializes a new instance of the class.
 
@@ -25,7 +26,7 @@ class XContentTypeOptions:
         """
         self.app = app
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -40,7 +41,7 @@ class XContentTypeOptions:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_x_Content_Type_Options(message):
+        async def set_x_Content_Type_Options(message: Message) -> None:
             """
             Sets the 'X-Content-Type-Options' header in the response headers'.
 

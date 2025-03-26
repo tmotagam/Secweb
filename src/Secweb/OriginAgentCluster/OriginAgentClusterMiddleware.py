@@ -3,8 +3,10 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
-
+from starlette.applications import Starlette
 from starlette.datastructures import MutableHeaders
+from starlette.types import Scope, Receive, Send, Message
+
 
 class OriginAgentCluster:
     ''' OriginAgentCluster sets the Origin-Agent-Cluster header.
@@ -13,7 +15,7 @@ class OriginAgentCluster:
         app.add_middleware(OriginAgentCluster)
     
     '''
-    def __init__(self, app):
+    def __init__(self, app: Starlette):
         """
         Initializes a new instance of the class.
 
@@ -25,7 +27,7 @@ class OriginAgentCluster:
         """
         self.app = app
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -40,7 +42,7 @@ class OriginAgentCluster:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Origin_Agent_Cluster(message):
+        async def set_Origin_Agent_Cluster(message: Message) -> None:
             """
             Sets the Origin-Agent-Cluster header in the HTTP response.
 

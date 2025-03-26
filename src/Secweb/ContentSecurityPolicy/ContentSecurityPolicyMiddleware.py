@@ -3,14 +3,19 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+from __future__ import annotations
 
 from secrets import token_urlsafe
+from typing import TypedDict
 from warnings import warn
+
+from starlette.applications import Starlette
 from starlette.datastructures import MutableHeaders
+from starlette.types import Scope, Receive, Send, Message
 
-nonce = None
+nonce: str | None = None
 
-def Nonce_Processor(DEFAULT_ENTROPY=90):
+def Nonce_Processor(DEFAULT_ENTROPY: int = 90) -> str:
     """
     Generate a nonce using the `token_urlsafe` function.
 
@@ -25,6 +30,43 @@ def Nonce_Processor(DEFAULT_ENTROPY=90):
     nonce = token_urlsafe(DEFAULT_ENTROPY)
     return nonce
 
+
+ContentSecurityPolicyOption = TypedDict(
+    "ContentSecurityPolicyOption",
+    {
+        "child-src": list[str],
+        "connect-src": list[str],
+        "default-src": list[str],
+        'frame-src': list[str],
+        "base-uri": list[str],
+        "block-all-mixed-content": list[str],
+        "font-src": list[str],
+        "frame-ancestors": list[str],
+        "img-src": list[str],
+        'manifest-src': list[str],
+        'media-src': list[str],
+        "object-src": list[str],
+        "script-src": list[str],
+        'script-src-elem': list[str],
+        "script-src-attr": list[str],
+        "style-src": list[str],
+        'style-src-elem': list[str],
+        'style-src-attr': list[str],
+        'worker-src': list[str],
+        'plugin-types': list[str],
+        'sandbox': list[str],
+        'form-action': list[str],
+        'navigate-to': list[str],
+        'report-uri': list[str],
+        'report-to': list[str],
+        'trusted-types': list[str],
+        "upgrade-insecure-requests": list[str],
+        "require-trusted-types-for": list[str],
+    },
+    total=False,
+)
+
+
 class ContentSecurityPolicy:
     ''' ContentSecurityPolicy class sets Content-Security-Policy/Content-Security-Policy-Report-Only header.
 
@@ -38,7 +80,14 @@ class ContentSecurityPolicy:
         Option (dict, optional): The Option parameter. Defaults to {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}.
     
     '''
-    def __init__(self, app, script_nonce: bool = False, report_only: bool = False, style_nonce: bool = False, Option = {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}):
+    def __init__(
+            self,
+            app: Starlette,
+            script_nonce: bool = False,
+            report_only: bool = False,
+            style_nonce: bool = False,
+            Option: ContentSecurityPolicyOption = {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]},
+    ):
         """
         Initialize the class with the given parameters.
 
@@ -46,7 +95,7 @@ class ContentSecurityPolicy:
             app (type): The app parameter.
             script_nonce (bool, optional): The script_nonce parameter. Defaults to False.
             style_nonce (bool, optional): The style_nonce parameter. Defaults to False.
-            Option (dict, optional): The Option parameter. Defaults to {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}.
+            Option (ContentSecurityPolicyOption, optional): The Option parameter. Defaults to {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}.
 
         Returns:
             None
@@ -60,7 +109,7 @@ class ContentSecurityPolicy:
         Policy = ['child-src', 'connect-src', 'default-src', 'font-src', 'frame-src', 'img-src', 'manifest-src', 'media-src', 'object-src', 'script-src', 'script-src-elem', 'script-src-attr', 'style-src', 'style-src-elem', 'style-src-attr', 'worker-src', 'base-uri', 'plugin-types', 'sandbox', 'form-action', 'frame-ancestors', 'navigate-to', 'report-uri', 'report-to', 'block-all-mixed-content', 'require-trusted-types-for', 'trusted-types', 'upgrade-insecure-requests']
         self.__PolicyCheck__(Option, Policy)
     
-    def __PolicyCheck__(self, Option, Policy):
+    def __PolicyCheck__(self, Option: ContentSecurityPolicyOption, Policy: list[str]) -> None:
         """
         Check the policy for a given option and update the policy string.
 
@@ -96,7 +145,7 @@ class ContentSecurityPolicy:
                 raise SyntaxError(f'The Policy {key} does not exist')
 
             self.PolicyString += key
-            values = Option[key]
+            values = Option[key]  # type: ignore[literal-required]
 
             if (key == 'script-src' and self.script_nonce and len(values) == 0) or (key == 'style-src' and self.style_nonce and len(values) == 0):
                 self.PolicyString += " "
@@ -120,7 +169,7 @@ class ContentSecurityPolicy:
                 else:
                     self.PolicyString += ' '
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -137,7 +186,7 @@ class ContentSecurityPolicy:
 
         PS = self.PolicyString
 
-        async def set_Content_Security_Policy(message):
+        async def set_Content_Security_Policy(message: Message) -> None:
             """
             Sets the Content-Security-Policy header in the HTTP response.
 
