@@ -4,8 +4,11 @@
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
 
+from typing import Any
 from warnings import warn
 from starlette.datastructures import MutableHeaders
+from starlette.types import Send, Receive, Scope, Message, ASGIApp
+
 
 class XDNSPrefetchControl:
     ''' XDNSPrefetchControl class sets X-DNS-Prefetch-Control header.
@@ -17,7 +20,7 @@ class XDNSPrefetchControl:
         Option (str): Optional. The option for the class object. Defaults to 'off'.
     
     '''
-    def __init__(self, app, Option = 'off'):
+    def __init__(self, app: ASGIApp, Option: Any = 'off'):
         """
         Initializes the class object.
 
@@ -38,7 +41,7 @@ class XDNSPrefetchControl:
             if self.Option != 'on' and self.Option != 'off':
                 raise SyntaxError('XDNSPrefetchControl has two values only 1> "on" 2> "off"') 
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -53,7 +56,7 @@ class XDNSPrefetchControl:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_x_DNS_Prefetch_Control(message):
+        async def set_x_DNS_Prefetch_Control(message: Message):
             """
             Sets the value of the `X-DNS-Prefetch-Control` header in the response headers.
 

@@ -4,6 +4,9 @@
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
 
+from typing import Any
+from starlette.applications import Starlette
+
 from .WsStrictTransportSecurity.WsStrictTransportSecurityMiddleware import WsHSTS
 from .XFrameOptions.XFrameOptionsMiddleware import XFrame
 from .CrossOriginEmbedderPolicy.CrossOriginEmbedderPolicyMiddleware import CrossOriginEmbedderPolicy
@@ -21,9 +24,10 @@ from .ContentSecurityPolicy.ContentSecurityPolicyMiddleware import ContentSecuri
 from .ClearSiteData.ClearSiteDataMiddleware import ClearSiteData
 from .CacheControl.CacheControlMiddleware import CacheControl
 
+
+
 class SecWeb:
-    """This Class is used for initializing all the middlewares CSP, COOP, etc.
-       Now you can also activate/deactivate any of the middlewares by supplying them boolean values in the Option parameter.
+    """This Class is used for initializing all the middlewares CSP, COOP, etc. you can also activate/deactivate any of the middlewares by supplying them boolean values in the Option parameter.
 
     Example :
         SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': False}, Routes=[], report_only=False, script_nonce=False, style_nonce=False)
@@ -81,12 +85,12 @@ class SecWeb:
 
     def __init__(
         self,
-        app,
-        Option = {},
-        Routes = [],
-        script_nonce = False,
-        style_nonce = False,
-        report_only = False
+        app: Starlette,
+        Option: Any = {},
+        Routes: "list[str]" = [],
+        script_nonce: bool = False,
+        style_nonce: bool = False,
+        report_only: bool = False
     ) -> None:
         """
         Initializes an instance of the class.

@@ -5,12 +5,16 @@
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
 
 from secrets import token_urlsafe
+from typing import Any
 from warnings import warn
+from starlette.types import Send, Receive, Scope, Message, ASGIApp
+
 from starlette.datastructures import MutableHeaders
 
-nonce = None
+style_nonce = None
+script_nonce = None
 
-def Nonce_Processor(DEFAULT_ENTROPY=90):
+def Nonce_Processor(DEFAULT_ENTROPY: int = 90):
     """
     Generate a nonce using the `token_urlsafe` function.
 
@@ -21,9 +25,11 @@ def Nonce_Processor(DEFAULT_ENTROPY=90):
         str: The generated nonce.
 
     """
-    global nonce
-    nonce = token_urlsafe(DEFAULT_ENTROPY)
-    return nonce
+    global style_nonce
+    global script_nonce
+    style_nonce = token_urlsafe(DEFAULT_ENTROPY)
+    script_nonce = style_nonce
+    return style_nonce
 
 class ContentSecurityPolicy:
     ''' ContentSecurityPolicy class sets Content-Security-Policy/Content-Security-Policy-Report-Only header.
@@ -38,7 +44,7 @@ class ContentSecurityPolicy:
         Option (dict, optional): The Option parameter. Defaults to {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}.
     
     '''
-    def __init__(self, app, script_nonce: bool = False, report_only: bool = False, style_nonce: bool = False, Option = {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}):
+    def __init__(self, app: ASGIApp, script_nonce: bool = False, report_only: bool = False, style_nonce: bool = False, Option: Any = {'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': [], 'font-src': ["'self'", 'https:', 'data:'], 'frame-ancestors': ["'self'"], 'img-src': ["'self'", 'data:'], "object-src": ["'none'"], "script-src": ["'self'"], "script-src-attr": ["'none'"], "style-src": ["'self'", "https:", "'unsafe-inline'"], "upgrade-insecure-requests": [], "require-trusted-types-for": ["'script'"]}):
         """
         Initialize the class with the given parameters.
 
@@ -57,10 +63,10 @@ class ContentSecurityPolicy:
         self.HeaderName = 'Content-Security-Policy' if not report_only else 'Content-Security-Policy-Report-Only'
         self.script_nonce = script_nonce
         self.style_nonce = style_nonce
-        Policy = ['child-src', 'connect-src', 'default-src', 'font-src', 'frame-src', 'img-src', 'manifest-src', 'media-src', 'object-src', 'script-src', 'script-src-elem', 'script-src-attr', 'style-src', 'style-src-elem', 'style-src-attr', 'worker-src', 'base-uri', 'plugin-types', 'sandbox', 'form-action', 'frame-ancestors', 'navigate-to', 'report-uri', 'report-to', 'block-all-mixed-content', 'require-trusted-types-for', 'trusted-types', 'upgrade-insecure-requests']
+        Policy: list[str] = ['child-src', 'connect-src', 'default-src', 'font-src', 'frame-src', 'img-src', 'manifest-src', 'media-src', 'object-src', 'script-src', 'script-src-elem', 'script-src-attr', 'style-src', 'style-src-elem', 'style-src-attr', 'worker-src', 'base-uri', 'plugin-types', 'sandbox', 'form-action', 'frame-ancestors', 'navigate-to', 'report-uri', 'report-to', 'block-all-mixed-content', 'require-trusted-types-for', 'trusted-types', 'upgrade-insecure-requests', 'fenced-frame-src']
         self.__PolicyCheck__(Option, Policy)
     
-    def __PolicyCheck__(self, Option, Policy):
+    def __PolicyCheck__(self, Option: Any, Policy: "list[str]") -> None:
         """
         Check the policy for a given option and update the policy string.
 
@@ -120,7 +126,7 @@ class ContentSecurityPolicy:
                 else:
                     self.PolicyString += ' '
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -137,7 +143,7 @@ class ContentSecurityPolicy:
 
         PS = self.PolicyString
 
-        async def set_Content_Security_Policy(message):
+        async def set_Content_Security_Policy(message: Message):
             """
             Sets the Content-Security-Policy header in the HTTP response.
 
@@ -151,11 +157,11 @@ class ContentSecurityPolicy:
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 if self.script_nonce is True and self.style_nonce is True:
-                    headers.append(self.HeaderName, PS.format(script_nonce_value=nonce, style_nonce_value=nonce))
+                    headers.append(self.HeaderName, PS.format(script_nonce_value=script_nonce, style_nonce_value=style_nonce))
                 elif self.style_nonce is True:
-                    headers.append(self.HeaderName, PS.format(style_nonce_value=nonce))
+                    headers.append(self.HeaderName, PS.format(style_nonce_value=style_nonce))
                 elif self.script_nonce is True:
-                    headers.append(self.HeaderName, PS.format(script_nonce_value=nonce))
+                    headers.append(self.HeaderName, PS.format(script_nonce_value=script_nonce))
                 else:
                     headers.append(self.HeaderName, PS)
 

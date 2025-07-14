@@ -4,7 +4,10 @@
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
 
+from typing import Any
 from warnings import warn
+from starlette.types import Send, Receive, Scope, Message, ASGIApp
+
 from starlette.datastructures import MutableHeaders
 
 class CrossOriginEmbedderPolicy:
@@ -17,7 +20,7 @@ class CrossOriginEmbedderPolicy:
         Option: The option for the class. Defaults to 'unsafe-none'.
     
     '''
-    def __init__(self, app, Option = 'unsafe-none'):
+    def __init__(self, app: ASGIApp, Option: Any = 'unsafe-none'):
         """
         Initializes the class with the given `app` and `Option` parameters.
 
@@ -39,7 +42,7 @@ class CrossOriginEmbedderPolicy:
             if self.Option not in Policies:
                 raise SyntaxError('CrossOriginEmbedderPolicy has 3 options 1> "unsafe-none" 2> "require-corp" 3> "credentialless"')
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -54,7 +57,7 @@ class CrossOriginEmbedderPolicy:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Cross_Origin_Embedder_Policy(message):
+        async def set_Cross_Origin_Embedder_Policy(message: Message):
             """
             Set the Cross-Origin-Embedder-Policy header in the response headers.
             

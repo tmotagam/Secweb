@@ -4,6 +4,9 @@
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
 
+from typing import Any
+from starlette.types import Send, Receive, Scope, Message, ASGIApp
+
 from starlette.datastructures import MutableHeaders
 
 class CacheControl:
@@ -26,9 +29,10 @@ class CacheControl:
             - 'public' (bool): Specifies whether the cache response is public.
             - 'immutable' (bool): Specifies whether the cache response is immutable.
             - 'stale-while-revalidate' (int): The maximum age of stale content in seconds while revalidating.
+            - 'stale-if-error' (int): The maximum age of stale content in seconds if a server side error occurs.
     
     '''
-    def __init__(self, app, Option = {'max-age': 86400, 'private': True }):
+    def __init__(self, app: ASGIApp, Option: Any = {'max-age': 604800, 'private': True }):
         """
         Initializes a new instance of the class.
 
@@ -47,6 +51,7 @@ class CacheControl:
                 - 'public' (bool): Specifies whether the cache response is public.
                 - 'immutable' (bool): Specifies whether the cache response is immutable.
                 - 'stale-while-revalidate' (int): The maximum age of stale content in seconds while revalidating.
+                - 'stale-if-error' (int): The maximum age of stale content in seconds if a server side error occurs.
 
         Raises:
             SyntaxError: If the `Option` dictionary contains unsupported cache control options.
@@ -92,10 +97,13 @@ class CacheControl:
         if 'stale-while-revalidate' in Option and Option['stale-while-revalidate'] > 0:
             self.policyString += f'stale-while-revalidate={str(Option["stale-while-revalidate"])}' if list(Option.keys()).__len__() == 1 else f'stale-while-revalidate={str(Option["stale-while-revalidate"])}, '
             Option.pop('stale-while-revalidate')
+        if 'stale-if-error' in Option and Option['stale-if-error'] > 0:
+            self.policyString += f'stale-if-error={str(Option["stale-if-error"])}' if list(Option.keys()).__len__() == 1 else f'stale-if-error={str(Option["stale-if-error"])}, '
+            Option.pop('stale-if-error')
         if list(Option.keys()).__len__() != 0 :
-            raise SyntaxError('Cache-Control has 12 options 1> "max-age" 2> "s-maxage" 3> "no-cache" 4> "no-store" 5> "no-transform" 6> "must-revalidate" 7> "proxy-revalidate" 8> "must-understand" 9> "private" 10> "public" 11> "immutable" 12> "stale-while-revalidate" ')
+            raise SyntaxError('Cache-Control has 13 options 1> "max-age" 2> "s-maxage" 3> "no-cache" 4> "no-store" 5> "no-transform" 6> "must-revalidate" 7> "proxy-revalidate" 8> "must-understand" 9> "private" 10> "public" 11> "immutable" 12> "stale-while-revalidate" 13> "stale-if-error" ')
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -110,7 +118,7 @@ class CacheControl:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Cache_Control(message):
+        async def set_Cache_Control(message: Message):
             """
             Set the Cache-Control header in the HTTP response.
 

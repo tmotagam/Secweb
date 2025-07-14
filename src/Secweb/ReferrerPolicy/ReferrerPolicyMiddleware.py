@@ -4,8 +4,11 @@
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
 
+from typing import Any
 from warnings import warn
 from starlette.datastructures import MutableHeaders
+from starlette.types import Send, Receive, Scope, Message, ASGIApp
+
 
 class ReferrerPolicy:
     ''' ReferrerPolicy class sets Referrer-Policy header.
@@ -17,7 +20,7 @@ class ReferrerPolicy:
         Option (list[str], optional): The `Option` parameter is a list of string that contains the option for the `Referrer-Policy`. The default value is ['strict-origin-when-cross-origin'].
     
     '''
-    def __init__(self, app, Option = ['strict-origin-when-cross-origin']):
+    def __init__(self, app: ASGIApp, Option: Any = ['strict-origin-when-cross-origin']):
         """
         Initializes the class with the given `app` and `Option` parameters.
 
@@ -46,12 +49,12 @@ class ReferrerPolicy:
             else:
                 raise SyntaxError('Referrer-Policy has 8 options 1> "no-referrer" 2> "no-referrer-when-downgrade" 3> "origin" 4> "origin-when-cross-origin" 5> "same-origin" 6> "strict-origin" 7> "strict-origin-when-cross-origin" 8> "unsafe-url"')
         else:
-            for option in Option:
+            for option in Option: # type: ignore
                 if option not in Policies:
                     raise SyntaxError('ReferrerPolicy has 8 options 1> "no-referrer" 2> "no-referrer-when-downgrade" 3> "origin" 4> "origin-when-cross-origin" 5> "same-origin" 6> "strict-origin" 7> "strict-origin-when-cross-origin" 8> "unsafe-url"')
-            self.policystring = ', '.join(Option)
+            self.policystring = ', '.join(Option) # type: ignore
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -66,7 +69,7 @@ class ReferrerPolicy:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Referrer_Policy(message):
+        async def set_Referrer_Policy(message: Message):
             """
             Set the Referrer-Policy header in the HTTP response.
 

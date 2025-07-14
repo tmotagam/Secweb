@@ -4,8 +4,10 @@
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
 
+from typing import Any
 from warnings import warn
 from starlette.datastructures import MutableHeaders
+from starlette.types import Send, Receive, Scope, Message, ASGIApp
 
 class XFrame:
     ''' XFrame class sets X-Frame-Options header.
@@ -17,7 +19,7 @@ class XFrame:
         Option (str, optional): Option for the function. Defaults to 'DENY'.
 
     '''
-    def __init__(self, app, Option = 'DENY'):
+    def __init__(self, app: ASGIApp, Option: Any = 'DENY'):
         """
         Initializes a new instance of the class.
 
@@ -41,7 +43,7 @@ class XFrame:
             if self.Option != 'SAMEORIGIN' and self.Option != 'DENY':
                 raise SyntaxError('XFrame has two values only 1> "DENY" 2> "SAMEORIGIN"') 
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -56,7 +58,7 @@ class XFrame:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_x_Frame_Options(message):
+        async def set_x_Frame_Options(message: Message):
             """
             Sets the 'X-Frame-Options' header in the response header.
 

@@ -2,77 +2,76 @@
 <p  align="center"><em>Secweb helps in setting security headers for FastApi and Starlette</em></p>
 
 ---
-
 Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 16 middlewares for setting headers of your website and also for your api(s).
 
+## **Features**
+
+- 🔒 **Secure Headers**: Automatically apply headers like `Strict-Transport-Security`, `Content-Security-Policy`, and more.
+
+- 🛠️ **Customizable Policies**: Flexibly build your own security policies.
+
+- 🚀 **No External Dependencies**: Lightweight and easy to include in any project that uses **FastAPI** and **Starlette**.
+
+- 🧩 **Easy to Use**: Integrate security headers in just a few lines of code.
+
+- 📚 **Attribution to Trusted Sources**: Implements recommendations from MDN and OWASP.
+
+
 **The PermissionsPolicy middleware lies in development branch [here](https://github.com/tmotagam/Secweb/tree/Secweb-Beta#readme)**
-
-### Features
-
-- Lightweight and fast
-  <br>
-
-- No External dependency
-  <br>
-
-- Use recommended headers from OWASP and MDN
-  <br>
-
-- Recommended by OWASP
 
 The list of middleware is as follows:
 
 1. Content Security Policy (CSP)
-   <br>
+<br>
 
 2. Origin Agent Cluster
-   <br>
+<br>
 
 3. Referrer Policy
-   <br>
+<br>
 
 4. HTTP Strict Transport Security(HSTS)
-   <br>
+<br>
 
 5. HTTP Strict Transport Security(HSTS) for WebSockets
-   <br>
+<br>
 
 6. X-Content-Type-Options
-   <br>
+<br>
 
 7. X-DNS-Prefetch-Control
-   <br>
+<br>
 
 8. X-Download-Options
-   <br>
+<br>
 
 9. X-Frame
-   <br>
+<br>
 
 10. X-Permitted-Cross-Domain-Policies
-    <br>
+<br>
 
 11. X-XSS-Protection
-    <br>
+<br>
 
 12. Cross-Origin-Embedder-Policy
-    <br>
+<br>
 
 13. Cross-Origin-Opener-Policy
-    <br>
+<br>
 
 14. Cross-Origin-Resource-Policy
-    <br>
+<br>
 
 15. Clear-Site-Data
-    <br>
+<br>
 
 16. Cache-Control
 
 # Requirements
 
-- [Python >= 3.7](https://www.python.org/downloads/)
-- [Starlette](https://pypi.org/project/starlette/)
+* [Python >= 3.8](https://www.python.org/downloads/)
+* [Starlette](https://pypi.org/project/starlette/)
 
 # Installation
 
@@ -85,7 +84,7 @@ pip install Secweb
 The package Secweb can be used in two different ways:
 
 1. Use the SecWeb class - it includes all the 16 classes together
-   <br>
+<br>
 
 2. Use the 16 middleware classes separately
 
@@ -120,49 +119,49 @@ Secweb(app=app, Option={'referrer': False, 'xframe': False})
 The values are as follows:
 
 1. `'csp'` for calling ContentSecurityPolicy class to set the user-defined values or activate/deactivate the header
-   <br>
+<br>
 
 2. `'referrer'` for calling ReferrerPolicy class to set the user-defined values or activate/deactivate the header
-   <br>
+<br>
 
 3. `'xdns'` for calling XDNSPrefetchControl class to set the user-defined values or activate/deactivate the header
-   <br>
+<br>
 
 4. `'xcdp'` for calling XPermittedCrossDomainPolicies class to set the user-defined values or activate/deactivate the header
-   <br>
+<br>
 
 5. `'hsts'` for calling HSTS class to set the user-defined values or activate/deactivate the header
-   <br>
+<br>
 
 6. `'wshsts'` for calling WsHSTS class to set the user-defined values for Websockets or activate/deactivate the header
-   <br>
+<br>
 
 7. `'xframe'` for calling XFrame class to set the user-defined values or activate/deactivate the header
-   <br>
+<br>
 
 8. `'coep'` for calling CrossOriginEmbedderPolicy class to set the user-defined values or activate/deactivate the header
-   <br>
+<br>
 
 9. `'coop'` for calling CrossOriginOpenerPolicy class to set the user-defined values or activate/deactivate the header
-   <br>
+<br>
 
 10. `'corp'` for calling CrossOriginResourcePolicy class to set the user-defined values or activate/deactivate the header
-    <br>
+<br>
 
 11. `'clearSiteData'` for calling ClearSiteData class to set the user-defined values or activate/deactivate the header
-    <br>
+<br>
 
 12. `'cacheControl'` for calling CacheControl class to set the user-defined values or activate/deactivate the header
-    <br>
+<br>
 
 13. `'xcto'` for activating/deactivating X-Content-Type-Options header
-    <br>
+<br>
 
 14. `'xdo'` for activating/deactivating X-Download-Options header
-    <br>
+<br>
 
 15. `'xss'` for activating/deactivating x-xss-protection header
-    <br>
+<br>
 
 16. `'oac'` for activating/deactivating Origin-Agent-Cluster header
 
@@ -209,16 +208,15 @@ nonce = Nonce_Processor(DEFAULT_ENTROPY=90) # inject the nonce variable into the
 
 # some more code
 ```
-
 ContentSecurityPolicy class sets the csp header.
 
 #### For FastApi server
 
 ```python
 from fastapi import FastAPI
-from Secweb.ContentSecurityPolicy import Nonce_Processor
+from Secweb.ContentSecurityPolicy import ContentSecurityPolicy
 
-app = FastAPI()
+app = FastAPI()  
 
 app.add_middleware(ContentSecurityPolicy, Option={'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': []}, script_nonce=False, style_nonce=False, report_only=False)
 ```
@@ -227,7 +225,7 @@ app.add_middleware(ContentSecurityPolicy, Option={'default-src': ["'self'"], 'ba
 
 ```python
 from starlette.applications import Starlette
-from Secweb.ContentSecurityPolicy import Nonce_Processor
+from Secweb.ContentSecurityPolicy import ContentSecurityPolicy
 
 
 app = Starlette()
@@ -235,9 +233,9 @@ app = Starlette()
 app.add_middleware(ContentSecurityPolicy, Option={'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': []}, script_nonce=False, style_nonce=False, report_only=False)
 ```
 
-- `script_nonce=False`: nonce flag for inline Javascript
-- `style_nonce=False`: nonce flag for inline css
-- `report_only=False`: report only flag which makes csp report only header
+* `script_nonce=False`: nonce flag for inline Javascript
+* `style_nonce=False`: nonce flag for inline css
+* `report_only=False`: report only flag which makes csp report only header
 
 For more detail on CSP header go to [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy).
 
@@ -256,7 +254,7 @@ from Secweb.OriginAgentCluster import OriginAgentCluster
 app = FastAPI()
 app.add_middleware(OriginAgentCluster)
 ```
-
+  
 #### For Starlette server
 
 ```python
@@ -339,7 +337,7 @@ app = FastAPI()
 
 app.add_middleware(WsHSTS, Option={'max-age': 4, 'preload': True})
 ```
-
+  
 #### For Starlette server
 
 ```python
@@ -367,7 +365,7 @@ app = FastAPI()
 
 app.add_middleware(XContentTypeOptions)
 ```
-
+  
 #### For Starlette server
 
 ```python
@@ -425,7 +423,7 @@ app.add_middleware(XDownloadOptions)
 ```
 
 #### For Starlette server
-
+  
 ```python
 from starlette.applications import Starlette
 from Secweb.XDownloadOptions import XDownloadOptions
@@ -663,12 +661,12 @@ For more detail on Cache Control Header go to [MDN Docs](https://developer.mozil
 
 Pull requests and Issues are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-[Github](https://github.com/tmotagam/Secweb)
+**[Github](https://github.com/tmotagam/Secweb)**
 
 # License
 
-[MLP 2.0](https://www.mozilla.org/en-US/MPL/2.0/)
+**[MLP 2.0](https://www.mozilla.org/en-US/MPL/2.0/)**
 
 # Secweb Icon
 
-[Secweb Icon](https://github.com/tmotagam/Secweb/blob/main/Secweb.jpg) © 2021 - 2025 by [Motagamwala Taha Arif Ali](https://github.com/tmotagam) is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1)
+**[Secweb Icon](https://github.com/tmotagam/Secweb/blob/main/Secweb.jpg) © 2021 - 2025 by [Motagamwala Taha Arif Ali](https://github.com/tmotagam) is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1)**

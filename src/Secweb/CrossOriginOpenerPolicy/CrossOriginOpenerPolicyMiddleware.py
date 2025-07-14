@@ -4,7 +4,10 @@
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
 
+from typing import Any
 from warnings import warn
+from starlette.types import Send, Receive, Scope, Message, ASGIApp
+
 from starlette.datastructures import MutableHeaders
 
 class CrossOriginOpenerPolicy:
@@ -17,7 +20,7 @@ class CrossOriginOpenerPolicy:
         Option (str): The option for the class. Defaults to 'unsafe-none'.
     
     '''
-    def __init__(self, app, Option = 'unsafe-none'):
+    def __init__(self, app: ASGIApp, Option: Any = 'unsafe-none'):
         """
         Initializes an instance of the class.
 
@@ -33,16 +36,16 @@ class CrossOriginOpenerPolicy:
         """
         self.app = app
         self.Option = Option
-        Policies = ['unsafe-none', 'same-origin-allow-popups', 'same-origin']
+        Policies = ['unsafe-none', 'same-origin-allow-popups', 'same-origin', 'noopener-allow-popups']
         if not isinstance(self.Option, str):
             warn('CrossOriginOpenerPolicy middleware will now accept string rather than dictonary eg. Option={"Cross-Origin-Opener-Policy": "unsafe-none"} will be Option="unsafe-none"', SyntaxWarning, 2)
             if self.Option['Cross-Origin-Opener-Policy'] not in Policies:
-                raise SyntaxError('Cross-Origin-Opener-Policy has 3 options 1> "unsafe-none" 2> "same-origin-allow-popups" 3> "same-origin"')
+                raise SyntaxError('Cross-Origin-Opener-Policy has 4 options 1> "unsafe-none" 2> "same-origin-allow-popups" 3> "same-origin" 4> "noopener-allow-popups"')
         else:
             if self.Option not in Policies:
-                raise SyntaxError('CrossOriginOpenerPolicy has 3 options 1> "unsafe-none" 2> "same-origin-allow-popups" 3> "same-origin"')
+                raise SyntaxError('Cross-Origin-Opener-Policy has 4 options 1> "unsafe-none" 2> "same-origin-allow-popups" 3> "same-origin" 4> "noopener-allow-popups"')
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -57,7 +60,7 @@ class CrossOriginOpenerPolicy:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Cross_Origin_Opener_Policy(message):
+        async def set_Cross_Origin_Opener_Policy(message: Message):
             """
             Sets the Cross-Origin-Opener-Policy header in the HTTP response headers.
             

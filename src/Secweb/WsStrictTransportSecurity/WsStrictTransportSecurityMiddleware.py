@@ -4,7 +4,10 @@
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
 
+from typing import Any
 from starlette.datastructures import MutableHeaders
+from starlette.types import Send, Receive, Scope, Message, ASGIApp
+
 
 class WsHSTS:
     ''' HSTS class sets Strict-Transport-Security Header for Websocket.
@@ -13,16 +16,16 @@ class WsHSTS:
         app.add_middleware(WsHSTS, Option={})
 
     Parameter :
-        Option (dict, optional): The options for the class. Defaults to {'max-age': 432000, 'includeSubDomains': True, 'preload': False}.
+        Option (dict, optional): The options for the class. Defaults to {'max-age': 31536000, 'includeSubDomains': True, 'preload': False}.
     
     '''
-    def __init__(self, app, Option = {'max-age': 432000, 'includeSubDomains': True, 'preload': False}):
+    def __init__(self, app: ASGIApp, Option: Any = {'max-age': 31536000, 'includeSubDomains': True, 'preload': False}):
         """
         Initializes an instance of the class.
 
         Args:
             app (object): The application object.
-            Option (dict, optional): The options for the class. Defaults to {'max-age': 432000, 'includeSubDomains': True, 'preload': False}.
+            Option (dict, optional): The options for the class. Defaults to {'max-age': 31536000, 'includeSubDomains': True, 'preload': False}.
 
         Raises:
             SyntaxError: If 'max-age' is not a positive integer or if the 'Option' dictionary is not valid.
@@ -50,7 +53,7 @@ class WsHSTS:
         else:
             raise SyntaxError('Strict-Transport-Security has 3 options 1> "max-age=<expire-time>" <- This is the compulsory option 2> "includeSubDomains" 3> "preload"')
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles Websocket requests by routing them to the appropriate handler based on the request path.
 
@@ -62,7 +65,7 @@ class WsHSTS:
         if scope["type"] != "websocket":
             return await self.app(scope, receive, send)
 
-        async def set_Strict_Transport_Security(message):  
+        async def set_Strict_Transport_Security(message: Message):  
             """
             Set the Strict-Transport-Security header in the response headers if the message type is "websocket.accept".
             
