@@ -4,11 +4,14 @@
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
 
+from typing import Any, Pattern
 from starlette.datastructures import MutableHeaders
+from starlette.types import Send, Receive, Scope, Message, ASGIApp
+
 from starlette.convertors import CONVERTOR_TYPES
 from re import compile, escape
 
-def __path_regex_builder__(path):
+def __path_regex_builder__(path: str) -> Pattern[str]:
     """
     Generate a regular expression pattern for a given path.
 
@@ -25,7 +28,6 @@ def __path_regex_builder__(path):
     is_host = not path.startswith("/")
 
     path_regex = "^"
-    duplicated_params = set()
 
     idx = 0
     for match in compile("{([a-zA-Z_][a-zA-Z0-9_]*)(:[a-zA-Z_][a-zA-Z0-9_]*)?}").finditer(path):
@@ -40,11 +42,6 @@ def __path_regex_builder__(path):
         path_regex += f"(?P<{param_name}>{convertor.regex})"
 
         idx = match.end()
-
-    if duplicated_params:
-        names = ", ".join(sorted(duplicated_params))
-        ending = "s" if len(duplicated_params) > 1 else ""
-        raise ValueError(f"Duplicated param name{ending} {names} at path {path}")
 
     if is_host:
         hostname = path[idx:].split(":")[0]
@@ -61,17 +58,17 @@ class ClearSiteData:
         app.add_middleware(ClearSiteData, Option={}, Routes=[])
 
     Parameter:
-        Option (dict, optional): The options for the class. Defaults to {'cache': True, 'cookies': True, 'storage': True}.
+        Option (dict, optional): The options for the class are {'*': True, 'cache': True, 'cookies': True, 'storage': True}. Defaults to {'*': True}.
         Routes (list, optional): The list of routes. Defaults to [].
     
     '''
-    def __init__(self, app, Option = {'cache': True, 'cookies': True, 'storage': True}, Routes = []):
+    def __init__(self, app: ASGIApp, Option: Any = {'*': True}, Routes: "list[str]" = []):
         """
         Initializes the class with the provided parameters.
 
         Args:
             app (object): The application object.
-            Option (dict, optional): The options for the class. Defaults to {'cache': True, 'cookies': True, 'storage': True}.
+            Option (dict, optional): The options for the class are {'*': True/False, 'cache': True/False, 'cookies': True/False, 'storage': True/False}. Defaults to {'*': True}.
             Routes (list, optional): The list of routes. Defaults to [].
 
         Raises:
@@ -104,7 +101,7 @@ class ClearSiteData:
         if list(Option.keys()).__len__() != 0 :
             raise SyntaxError('Clear-Site-Data has 4 options 1> "cache" 2> "cookies" 3> "storage" 4> "*"')
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -119,7 +116,7 @@ class ClearSiteData:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
         
-        async def set_route(message):
+        async def set_route(message: Message):
             """
             Sets the header for the given route.
 

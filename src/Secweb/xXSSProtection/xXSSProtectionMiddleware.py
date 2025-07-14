@@ -5,6 +5,8 @@
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
 
 from starlette.datastructures import MutableHeaders
+from starlette.types import Send, Receive, Scope, Message, ASGIApp
+
 
 class xXSSProtection:
     ''' xXSSProtection class sets X-XSS-Protection header.
@@ -13,7 +15,7 @@ class xXSSProtection:
         app.add_middleware(xXSSProtection)
     
     '''
-    def __init__(self, app):
+    def __init__(self, app: ASGIApp):
         """
         Initializes a new instance of the class.
 
@@ -25,7 +27,7 @@ class xXSSProtection:
         """
         self.app = app
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -40,7 +42,7 @@ class xXSSProtection:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_x_XSS_Protection(message):
+        async def set_x_XSS_Protection(message: Message):
             """
             Sets the X-XSS-Protection header to '0' in the HTTP response header.
         

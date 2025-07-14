@@ -60,7 +60,7 @@ The list of middleware is as follows:
 
 # Requirements
 
-* [Python >= 3.7](https://www.python.org/downloads/)
+* [Python >= 3.8](https://www.python.org/downloads/)
 * [Starlette](https://pypi.org/project/starlette/)
 
 # Installation
@@ -207,7 +207,7 @@ ContentSecurityPolicy class sets the csp header.
 
 ```python
 from fastapi import FastAPI
-from Secweb.ContentSecurityPolicy import Nonce_Processor
+from Secweb.ContentSecurityPolicy import ContentSecurityPolicy
 
 app = FastAPI()  
 
@@ -218,7 +218,7 @@ app.add_middleware(ContentSecurityPolicy, Option={'default-src': ["'self'"], 'ba
 
 ```python
 from starlette.applications import Starlette
-from Secweb.ContentSecurityPolicy import Nonce_Processor
+from Secweb.ContentSecurityPolicy import ContentSecurityPolicy
 
 
 app = Starlette()

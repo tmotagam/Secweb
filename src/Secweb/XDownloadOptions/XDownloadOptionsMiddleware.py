@@ -5,6 +5,8 @@
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
 
 from starlette.datastructures import MutableHeaders
+from starlette.types import Send, Receive, Scope, Message, ASGIApp
+
 
 class XDownloadOptions:
     ''' XDownloadOptions sets the X-Download-Options header.
@@ -13,7 +15,7 @@ class XDownloadOptions:
         app.add_middleware(XDownloadOptions)
     
     '''
-    def __init__(self, app):
+    def __init__(self, app: ASGIApp):
         """
         Initializes a new instance of the class.
 
@@ -21,7 +23,7 @@ class XDownloadOptions:
         """
         self.app = app
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -36,7 +38,7 @@ class XDownloadOptions:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_x_Download_Options(message):
+        async def set_x_Download_Options(message: Message):
             """
             Set the X-Download-Options header in the HTTP response header.
 

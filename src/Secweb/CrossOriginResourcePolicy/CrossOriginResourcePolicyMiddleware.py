@@ -4,7 +4,10 @@
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
 
+from typing import Any
 from warnings import warn
+from starlette.types import Send, Receive, Scope, Message, ASGIApp
+
 from starlette.datastructures import MutableHeaders
 
 class CrossOriginResourcePolicy:
@@ -17,7 +20,7 @@ class CrossOriginResourcePolicy:
         Option (str): The option for the class. Default is 'cross-origin'.
         
     '''
-    def __init__(self, app, Option = 'cross-origin'):
+    def __init__(self, app: ASGIApp, Option: Any = 'cross-origin'):
         """
         Initializes an instance of the class.
 
@@ -42,7 +45,7 @@ class CrossOriginResourcePolicy:
             if self.Option not in Policies:
                 raise SyntaxError('CrossOriginResourcePolicy has 3 options 1> "same-site" 2> "same-origin" 3> "cross-origin"')
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -57,7 +60,7 @@ class CrossOriginResourcePolicy:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Cross_Origin_Resource_Policy(message):
+        async def set_Cross_Origin_Resource_Policy(message: Message):
             """
             Sets the Cross-Origin Resource Policy header in the response headers.
 

@@ -4,8 +4,11 @@
 
   Copyright 2021-2025, Motagamwala Taha Arif Ali '''
 
+from typing import Any
 from warnings import warn
 from starlette.datastructures import MutableHeaders
+from starlette.types import Send, Receive, Scope, Message, ASGIApp
+
 
 class PermissionsPolicy:
     '''PermissionsPolicy class sets Permissions-Policy header.
@@ -17,7 +20,7 @@ class PermissionsPolicy:
        Option (dict): The options for the permission policy.
     
     '''
-    def __init__(self, app, Option = {}):
+    def __init__(self, app: ASGIApp, Option: Any = {}):
         """
         Initializes a new instance of the class.
 
@@ -36,14 +39,14 @@ class PermissionsPolicy:
         """
         self.app = app
         self.PolicyString = ''
-        Policy = ["accelerometer", "ambient-light-sensor", "attribution-reporting", "autoplay", "bluetooth", "browsing-topics", "camera", "compute-pressure", "display-capture", "document-domain", "encrypted-media", "fullscreen", "geolocation", "gyroscope", "hid", "identity-credentials-get", "idle-detection", "local-fonts", "magnetometer", "microphone", "midi", "otp-credentials", "payment", "picture-in-picture", "publickey-credentials-create", "publickey-credentials-get", "screen-wake-lock", "serial", "storage-access", "usb", "web-share", "window-management", "xr-spatial-tracking"]
+        Policy: list[str] = ["accelerometer","ambient-light-sensor","attribution-reporting","autoplay","bluetooth","browsing-topics","camera","captured-surface-control","compute-pressure","cross-origin-isolated", "deferred-fetch", "deferred-fetch-minimal", "display-capture", "encrypted-media", "fullscreen", "geolocation", "gyroscope", "hid", "identity-credentials-get", "idle-detection", "local-fonts", "magnetometer", "microphone", "midi", "otp-credentials", "payment", "picture-in-picture", "publickey-credentials-create", "publickey-credentials-get", "screen-wake-lock", "serial", "storage-access", "summarizer", "usb", "web-share", "window-management", "xr-spatial-tracking"]
         if Option == {}:
             raise SyntaxError('Option cannot be empty for Permission-Policy to be applied')
         else:
             warn("Permission-Policy header is still under working draft, browsers might give warnings and errors", SyntaxWarning, 2)
             self.__PolicyCheck__(Option, Policy)
     
-    def __PolicyCheck__(self, Option, Policy):
+    def __PolicyCheck__(self, Option: Any, Policy: "list[str]") -> None:
         """
         Generate a policy string based on the given Option and Policy dictionaries.
 
@@ -93,7 +96,7 @@ class PermissionsPolicy:
                 else:
                     self.PolicyString += ' '
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
@@ -108,7 +111,7 @@ class PermissionsPolicy:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        async def set_Permissions_Policy(message):
+        async def set_Permissions_Policy(message: Message):
             """
             Set the Permissions-Policy header in the HTTP response headers.
 
