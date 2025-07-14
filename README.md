@@ -66,7 +66,7 @@ The list of middleware is as follows:
 # Installation
 
 ```powershell
-pip install Secweb_dev-1.18.5-py3-none-any.whl
+pip install Secweb_dev-1.25.7-py3-none-any.whl
 ```
 
 # Usage
