@@ -2,7 +2,7 @@
 name: Question
 about: Ask questions about Secweb
 title: "[QUESTION]"
-labels: ""
+labels: "question"
 assignees: tmotagam
 ---
 
