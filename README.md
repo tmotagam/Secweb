@@ -6,6 +6,18 @@
 
 Secweb is the pack of middlewares for setting security headers for fastapi and can also be used for any framework created on starlette it has 17 middlewares for setting headers of your website and also for your api(s).
 
+## **Features**
+
+- 🔒 **Secure Headers**: Automatically apply headers like `Strict-Transport-Security`, `Content-Security-Policy`, and more.
+
+- 🛠️ **Customizable Policies**: Flexibly build your own security policies.
+
+- 🚀 **No External Dependencies**: Lightweight and easy to include in any project that uses **FastAPI** and **Starlette**.
+
+- 🧩 **Easy to Use**: Integrate security headers in just a few lines of code.
+
+- 📚 **Attribution to Trusted Sources**: Implements recommendations from MDN and OWASP.
+
 The list of middleware is as follows:
 
 1. Content Security Policy (CSP)
@@ -60,13 +72,13 @@ The list of middleware is as follows:
 
 # Requirements
 
-* [Python >= 3.8](https://www.python.org/downloads/)
+* [Python >= 3.9](https://www.python.org/downloads/)
 * [Starlette](https://pypi.org/project/starlette/)
 
 # Installation
 
 ```powershell
-pip install Secweb_dev-1.25.7-py3-none-any.whl
+pip install Secweb_dev-1.30.12-py3-none-any.whl
 ```
 
 # Usage
@@ -83,7 +95,7 @@ The package Secweb can be used in two different ways:
 ```Python
 from Secweb import SecWeb
 
-SecWeb(app=app) # The app is the ASGIapp required by the starlette to give access to the different methods to the class
+SecWeb(app=app) # The app is the ASGIapp required by the Starlette/FastApi to give access to the different methods to the class
 ```
 
 The above example uses all the default headers value that are preset. You can change the values by creating the option dict.
@@ -96,9 +108,9 @@ from Secweb import SecWeb
 SecWeb(app=app, Option={'referrer': ['no-referrer']}, Routes=[], script_nonce=False, style_nonce=False, report_only=False)
 ```
 
-The `Option`-parameter uses 17 keys for calling middleware classes to set the user-defined policies or activating or deactivating headers.
+The `Option`-parameter uses 17 keys for calling middleware classes to set the user-defined policies or deactivating headers.
 
-**Note: Activating/Deactivating the header can only be done in SecWeb class in Option param**
+**Note: Deactivating the header can only be done in SecWeb class in Option param**
 
 ```Python
 from Secweb import SecWeb
@@ -108,55 +120,55 @@ Secweb(app=app, Option={'referrer': False, 'xframe': False})
 
 The values are as follows:
 
-1. `'csp'` for calling ContentSecurityPolicy class to set the user-defined values or activate/deactivate the header
+1. `'csp'` for calling ContentSecurityPolicy class to set the user-defined values or deactivate the header
 <br>
 
-2. `'referrer'` for calling ReferrerPolicy class to set the user-defined values or activate/deactivate the header
+2. `'referrer'` for calling ReferrerPolicy class to set the user-defined values or deactivate the header
 <br>
 
-3. `'xdns'` for calling XDNSPrefetchControl class to set the user-defined values or activate/deactivate the header
+3. `'xdns'` for calling XDNSPrefetchControl class to set the user-defined values or deactivate the header
 <br>
 
-4. `'xcdp'` for calling XPermittedCrossDomainPolicies class to set the user-defined values or activate/deactivate the header
+4. `'xcdp'` for calling XPermittedCrossDomainPolicies class to set the user-defined values or deactivate the header
 <br>
 
-5. `'hsts'` for calling HSTS class to set the user-defined values or activate/deactivate the header
+5. `'hsts'` for calling HSTS class to set the user-defined values or deactivate the header
 <br>
 
-6. `'wshsts'` for calling WsHSTS class to set the user-defined values for Websockets or activate/deactivate the header
+6. `'wshsts'` for calling WsHSTS class to set the user-defined values for Websockets or deactivate the header
 <br>
 
-7. `'xframe'` for calling XFrame class to set the user-defined values or activate/deactivate the header
+7. `'xframe'` for calling XFrame class to set the user-defined values or deactivate the header
 <br>
 
-8. `'PermissionPolicy'` for calling the PermissionsPolicy class to set the user-defined values or activate/deactivate the header
+8. `'PermissionPolicy'` for calling the PermissionsPolicy class to set the user-defined values or deactivate the header
 <br>
 
-9. `'coep'` for calling CrossOriginEmbedderPolicy class to set the user-defined values or activate/deactivate the header
+9. `'coep'` for calling CrossOriginEmbedderPolicy class to set the user-defined values or deactivate the header
 <br>
 
-10. `'coop'` for calling CrossOriginOpenerPolicy class to set the user-defined values or activate/deactivate the header
+10. `'coop'` for calling CrossOriginOpenerPolicy class to set the user-defined values or deactivate the header
 <br>
 
-11. `'corp'` for calling CrossOriginResourcePolicy class to set the user-defined values or activate/deactivate the header
+11. `'corp'` for calling CrossOriginResourcePolicy class to set the user-defined values or deactivate the header
 <br>
 
-12. `'clearSiteData'` for calling ClearSiteData class to set the user-defined values or activate/deactivate the header
+12. `'clearSiteData'` for calling ClearSiteData class to set the user-defined values or deactivate the header
 <br>
 
-13. `'cacheControl'` for calling CacheControl class to set the user-defined values or activate/deactivate the header
+13. `'cacheControl'` for calling CacheControl class to set the user-defined values or deactivate the header
 <br>
 
-14. `'xcto'` for activating/deactivating X-Content-Type-Options header
+14. `'xcto'` for deactivating X-Content-Type-Options header
 <br>
 
-15. `'xdo'` for activating/deactivating X-Download-Options header
+15. `'xdo'` for deactivating X-Download-Options header
 <br>
 
-16. `'xss'` for activating/deactivating x-xss-protection header
+16. `'xss'` for deactivating x-xss-protection header
 <br>
 
-17. `'oac'` for activating/deactivating Origin-Agent-Cluster header
+17. `'oac'` for deactivating Origin-Agent-Cluster header
 
 ```python
 # Example of all values
@@ -173,11 +185,9 @@ SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe':'SAMEORIGIN
 The Nonce_Processor module generates nonce for csp header
 
 ```python
-# Some Code
-
-nonce = Nonce_Processor(DEFAULT_ENTROPY=90) # inject the nonce variable into the jinja or html
-
-# Some Code
+    # Some code
+    nonce = Nonce_Processor(DEFAULT_ENTROPY=90) # inject the nonce variable into the jinja or html
+    # Some more code
 ```
 
 `DEFAULT_ENTROPY` is used to set the nonce length.
@@ -192,14 +202,10 @@ from Secweb.ContentSecurityPolicy import Nonce_Processor
 app = FastAPI()
 
 @app.get("/")
-
-async  def  root():
-
-# some code
-
-nonce = Nonce_Processor(DEFAULT_ENTROPY=90) # inject the nonce variable into the jinja or html
-
-# some more code
+async def root():
+    # some code
+    nonce = Nonce_Processor(DEFAULT_ENTROPY=90) # inject the nonce variable into the jinja or html
+    # some more code
 ```
 ContentSecurityPolicy class sets the csp header.
 
@@ -220,8 +226,9 @@ app.add_middleware(ContentSecurityPolicy, Option={'default-src': ["'self'"], 'ba
 from starlette.applications import Starlette
 from Secweb.ContentSecurityPolicy import ContentSecurityPolicy
 
+routes=[...]
 
-app = Starlette()
+app = Starlette(routes=routes)
 
 app.add_middleware(ContentSecurityPolicy, Option={'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': []}, script_nonce=False, style_nonce=False, report_only=False)
 ```
@@ -254,7 +261,9 @@ app.add_middleware(OriginAgentCluster)
 from starlette.applications import Starlette
 from Secweb.OriginAgentCluster import OriginAgentCluster
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 
 app.add_middleware(OriginAgentCluster)
 ```
@@ -282,7 +291,9 @@ app.add_middleware(ReferrerPolicy, Option=['strict-origin-when-cross-origin'])
 from starlette.applications import Starlette
 from Secweb.ReferrerPolicy import ReferrerPolicy
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 app.add_middleware(ReferrerPolicy, Option=['strict-origin-when-cross-origin'])
 ```
 
@@ -309,7 +320,9 @@ app.add_middleware(HSTS, Option={'max-age': 4, 'preload': True})
 from starlette.applications import Starlette
 from Secweb.StrictTransportSecurity import HSTS
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 
 app.add_middleware(HSTS, Option={'max-age': 4, 'preload': True})
 ```
@@ -337,7 +350,9 @@ app.add_middleware(WsHSTS, Option={'max-age': 4, 'preload': True})
 from starlette.applications import Starlette
 from Secweb.WsStrictTransportSecurity import WsHSTS
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 
 app.add_middleware(WsHSTS, Option={'max-age': 4, 'preload': True})
 ```
@@ -365,7 +380,9 @@ app.add_middleware(XContentTypeOptions)
 from starlette.applications import Starlette
 from Secweb.XContentTypeOptions import XContentTypeOptions
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 
 app.add_middleware(XContentTypeOptions)
 ```
@@ -393,7 +410,9 @@ app.add_middleware(XDNSPrefetchControl, Option='on')
 from starlette.applications import Starlette
 from Secweb.XDNSPrefetchControl import XDNSPrefetchControl
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 
 app.add_middleware(XDNSPrefetchControl, Option='off')
 ```
@@ -421,7 +440,9 @@ app.add_middleware(XDownloadOptions)
 from starlette.applications import Starlette
 from Secweb.XDownloadOptions import XDownloadOptions
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 
 app.add_middleware(XDownloadOptions)
 ```
@@ -447,7 +468,9 @@ app.add_middleware(XFrame, Option='DENY')
 from starlette.applications import Starlette
 from Secweb.XFrameOptions import XFrame
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 
 app.add_middleware(XFrame, Option='DENY')
 ```
@@ -475,7 +498,9 @@ app.add_middleware(XPermittedCrossDomainPolicies, Option='none')
 from starlette.applications import Starlette
 from Secweb.XPermittedCrossDomainPolicies import XPermittedCrossDomainPolicies
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 
 app.add_middleware(XPermittedCrossDomainPolicies, Option='none')
 ```
@@ -503,7 +528,9 @@ app.add_middleware(xXSSProtection)
 from starlette.applications import Starlette
 from Secweb.xXSSProtection import xXSSProtection
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 
 app.add_middleware(xXSSProtection)
 ```
@@ -531,7 +558,9 @@ app.add_middleware(CrossOriginEmbedderPolicy, Option='unsafe-none')
 from starlette.applications import Starlette
 from Secweb.CrossOriginEmbedderPolicy import CrossOriginEmbedderPolicy
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 
 app.add_middleware(CrossOriginEmbedderPolicy, Option='unsafe-none')
 ```
@@ -559,7 +588,9 @@ app.add_middleware(CrossOriginOpenerPolicy, Option='unsafe-none')
 from starlette.applications import Starlette
 from Secweb.CrossOriginOpenerPolicy import CrossOriginOpenerPolicy
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 
 app.add_middleware(CrossOriginOpenerPolicy, Option='unsafe-none')
 ```
@@ -587,7 +618,9 @@ app.add_middleware(CrossOriginResourcePolicy, Option='same-site')
 from starlette.applications import Starlette
 from Secweb.CrossOriginResourcePolicy import CrossOriginResourcePolicy
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 
 app.add_middleware(CrossOriginResourcePolicy, Option='same-site')
 ```
@@ -615,7 +648,9 @@ app.add_middleware(ClearSiteData, Option={'cookies': True}, Routes=['/login', '/
 from starlette.applications import Starlette
 from Secweb.ClearSiteData import ClearSiteData
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 
 app.add_middleware(ClearSiteData, Option={'cookies': True}, Routes=['/login', '/logout/{id}'])
 ```
@@ -643,7 +678,9 @@ app.add_middleware(CacheControl, Option={'s-maxage': 600, 'public': True})
 from starlette.applications import Starlette
 from Secweb.CacheControl import CacheControl
 
-app = Starlette()
+routes=[...]
+
+app = Starlette(routes=routes)
 
 app.add_middleware(CacheControl, Option={'s-maxage': 600, 'public': True})
 ```
@@ -664,7 +701,7 @@ from Secweb.PermissionsPolicy import PermissionsPolicy
 
 app = FastAPI()
 
-app.add_middleware(PermissionsPolicy, Option={'accelerometer': ['self', '"https://example.com/"'], 'camera': [], 'display-capture': [], 'document-domain': ['self']'})
+app.add_middleware(PermissionsPolicy, Option={'accelerometer': ['"https://example.com/"'], 'camera': [], 'display-capture': ['*'], 'geolocation': ['self']})
 ```
 
 #### For Starlette server
@@ -673,9 +710,11 @@ app.add_middleware(PermissionsPolicy, Option={'accelerometer': ['self', '"https:
 from starlette.applications import Starlette
 from Secweb.PermissionsPolicy import PermissionsPolicy
 
-app = Starlette()
+routes=[...]
 
-app.add_middleware(PermissionsPolicy, Option={'accelerometer': ['self', '"https://example.com/"'], 'camera': [], 'display-capture': [], 'document-domain': ['self']'})
+app = Starlette(routes=routes)
+
+app.add_middleware(PermissionsPolicy, Option={'accelerometer': ['"https://example.com/"'], 'camera': [], 'display-capture': ['*'], 'geolocation': ['self']})
 ```
 For more detail on Permissions Policy header go to this [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy)
 
@@ -691,4 +730,4 @@ Pull requests and Issues are welcome. For major changes, please open an issue fi
 
 # Secweb Icon
 
-**[Secweb Icon](https://github.com/tmotagam/Secweb/blob/main/Secweb.jpg) © 2021 - 2025 by [Motagamwala Taha Arif Ali](https://github.com/tmotagam) is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1)**
+**[Secweb Icon](https://github.com/tmotagam/Secweb/blob/main/Secweb.jpg) © 2021 - 2026 by [Motagamwala Taha Arif Ali](https://github.com/tmotagam) is licensed under [Attribution-NonCommercial-NoDerivatives 4.0 International](https://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1)**

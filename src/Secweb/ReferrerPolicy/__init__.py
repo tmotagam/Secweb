@@ -1,1 +1,1 @@
-from .ReferrerPolicyMiddleware import ReferrerPolicy
+from .ReferrerPolicyMiddleware import ReferrerPolicy as ReferrerPolicy

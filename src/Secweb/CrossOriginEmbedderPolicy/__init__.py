@@ -1,1 +1,1 @@
-from .CrossOriginEmbedderPolicyMiddleware import CrossOriginEmbedderPolicy
+from .CrossOriginEmbedderPolicyMiddleware import CrossOriginEmbedderPolicy as CrossOriginEmbedderPolicy

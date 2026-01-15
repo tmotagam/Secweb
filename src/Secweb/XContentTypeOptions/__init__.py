@@ -1,1 +1,1 @@
-from .XContentTypeOptionsMiddleware import XContentTypeOptions
+from .XContentTypeOptionsMiddleware import XContentTypeOptions as XContentTypeOptions

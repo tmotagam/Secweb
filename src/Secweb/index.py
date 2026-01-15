@@ -2,28 +2,53 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+  Copyright 2021-2026, Motagamwala Taha Arif Ali '''
 
-from typing import Any
+from typing import Any, Literal, TypedDict, Union
 from starlette.applications import Starlette
 
-from .WsStrictTransportSecurity.WsStrictTransportSecurityMiddleware import WsHSTS
-from .XFrameOptions.XFrameOptionsMiddleware import XFrame
-from .CrossOriginEmbedderPolicy.CrossOriginEmbedderPolicyMiddleware import CrossOriginEmbedderPolicy
-from .CrossOriginOpenerPolicy.CrossOriginOpenerPolicyMiddleware import CrossOriginOpenerPolicy
-from .CrossOriginResourcePolicy.CrossOriginResourcePolicyMiddleware import CrossOriginResourcePolicy
+from .WsStrictTransportSecurity.WsStrictTransportSecurityMiddleware import WsHSTS, WsHSTSOptions
+from .XFrameOptions.XFrameOptionsMiddleware import XFrame, XFrameOptions
+from .CrossOriginEmbedderPolicy.CrossOriginEmbedderPolicyMiddleware import CrossOriginEmbedderPolicy, CrossOriginEmbedderPolicyOptions
+from .CrossOriginOpenerPolicy.CrossOriginOpenerPolicyMiddleware import CrossOriginOpenerPolicy, CrossOriginOpenerPolicyOptions
+from .CrossOriginResourcePolicy.CrossOriginResourcePolicyMiddleware import CrossOriginResourcePolicy, CrossOriginResourcePolicyOptions
 from .xXSSProtection.xXSSProtectionMiddleware import xXSSProtection
-from .StrictTransportSecurity.StrictTransportSecurityMiddleware import HSTS
-from .XPermittedCrossDomainPolicies.XPermittedCrossDomainPoliciesMiddleware import XPermittedCrossDomainPolicies
+from .StrictTransportSecurity.StrictTransportSecurityMiddleware import HSTS, HSTSOptions
+from .XPermittedCrossDomainPolicies.XPermittedCrossDomainPoliciesMiddleware import XPermittedCrossDomainPolicies, XPermittedCrossDomainPoliciesOptions
 from .XDownloadOptions.XDownloadOptionsMiddleware import XDownloadOptions
-from .XDNSPrefetchControl.XDNSPrefetchControlMiddleware import XDNSPrefetchControl
+from .XDNSPrefetchControl.XDNSPrefetchControlMiddleware import XDNSPrefetchControl, XDNSPrefetchControlOptions
 from .XContentTypeOptions.XContentTypeOptionsMiddleware import XContentTypeOptions
-from .ReferrerPolicy.ReferrerPolicyMiddleware import ReferrerPolicy
+from .ReferrerPolicy.ReferrerPolicyMiddleware import ReferrerPolicy, ReferrerPolicyOptions
 from .OriginAgentCluster.OriginAgentClusterMiddleware import OriginAgentCluster
-from .ContentSecurityPolicy.ContentSecurityPolicyMiddleware import ContentSecurityPolicy
-from .PermissionsPolicy.PermissionsPolicyMiddleware import PermissionsPolicy
-from .ClearSiteData.ClearSiteDataMiddleware import ClearSiteData
-from .CacheControl.CacheControlMiddleware import CacheControl
+from .ContentSecurityPolicy.ContentSecurityPolicyMiddleware import ContentSecurityPolicy, ContentSecurityPolicyOptions
+from .PermissionsPolicy.PermissionsPolicyMiddleware import PermissionsPolicy, PermissionsPolicyOptions
+from .ClearSiteData.ClearSiteDataMiddleware import ClearSiteData, ClearSiteDataOptions
+from .CacheControl.CacheControlMiddleware import CacheControl, CacheControlOptions
+
+
+SecWebOptions = TypedDict(
+    'SecWebOptions',
+    {
+        'csp': Union[Literal[False], ContentSecurityPolicyOptions],
+        'coop': Union[Literal[False], CrossOriginOpenerPolicyOptions],
+        'coep': Union[Literal[False], CrossOriginEmbedderPolicyOptions],
+        'corp': Union[Literal[False], CrossOriginResourcePolicyOptions],
+        'referrer': Union[Literal[False], ReferrerPolicyOptions],
+        'xdns': Union[Literal[False], XDNSPrefetchControlOptions],
+        'xcdp': Union[Literal[False], XPermittedCrossDomainPoliciesOptions],
+        'hsts': Union[Literal[False], HSTSOptions],
+        'wshsts': Union[Literal[False], WsHSTSOptions],
+        'xframe': Union[Literal[False], XFrameOptions],
+        'PermissionPolicy': Union[Literal[False], PermissionsPolicyOptions],
+        'clearSiteData': Union[Literal[False], ClearSiteDataOptions],
+        'cacheControl': Union[Literal[False], CacheControlOptions],
+        'xcto': Literal[False],
+        'xdo': Literal[False],
+        'xss': Literal[False],
+        'oac': Literal[False]
+    },
+    total=False
+)
 
 
 class SecWeb:
@@ -88,19 +113,20 @@ class SecWeb:
     def __init__(
         self,
         app: Starlette,
-        Option: Any = {},
-        Routes: "list[str]" = [],
+        Option: SecWebOptions = {},
+        Routes: list[str] = [],
         script_nonce: bool = False,
         style_nonce: bool = False,
         report_only: bool = False
     ) -> None:
+
         """
         Initializes an instance of the class.
 
         Args:
             app: The application object.
             Option: A dictionary of options (default: {}).
-            Routes: A list of routes (default: []).
+            Routes: A list of routes for the Clear-Site-Data header (default: []).
             script_nonce: Whether to include script nonce (default: False).
             style_nonce: Whether to include style nonce (default: False).
             report_only: Whether to use Content-Security-Policy-Report-Only header instead of Content-Security-Policy (default: False).
@@ -108,131 +134,49 @@ class SecWeb:
         Returns:
             None
         """
-        if not Option:
-            app.add_middleware(XFrame)
-            app.add_middleware(xXSSProtection)
-            app.add_middleware(HSTS)
-            app.add_middleware(WsHSTS)
-            app.add_middleware(XPermittedCrossDomainPolicies)
-            app.add_middleware(XDownloadOptions)
-            app.add_middleware(XDNSPrefetchControl)
-            app.add_middleware(XContentTypeOptions)
-            app.add_middleware(ReferrerPolicy)
-            app.add_middleware(OriginAgentCluster)
-            app.add_middleware(ContentSecurityPolicy,script_nonce=script_nonce,style_nonce=style_nonce,report_only=report_only)
-            app.add_middleware(CacheControl)
-            app.add_middleware(CrossOriginEmbedderPolicy)
-            app.add_middleware(CrossOriginOpenerPolicy)
-            app.add_middleware(CrossOriginResourcePolicy)
-            if Routes.__len__() > 0:
-                app.add_middleware(ClearSiteData, Routes=Routes)
-        else:
-            if "xdo" in Option.keys() and Option["xdo"] is False:
-                pass
-            else:
-                app.add_middleware(XDownloadOptions)
-            if "xcto" in Option.keys() and Option['xcto'] is False:
-                pass
-            else:
-                app.add_middleware(XContentTypeOptions)
-            if "oac" in Option.keys() and Option['oac'] is False:
-                pass
-            else:
-                app.add_middleware(OriginAgentCluster)
-            if "xss" in Option.keys() and Option['xss'] is False:
-                pass
-            else:
-                app.add_middleware(xXSSProtection)
+        
+        MIDDLEWARE_REGISTRY: dict[str, tuple[type, bool]] = {
+            "xdo": (XDownloadOptions, True),
+            "xcto": (XContentTypeOptions, True),
+            "oac": (OriginAgentCluster, True),
+            "xss": (xXSSProtection, True),
+            "coop": (CrossOriginOpenerPolicy, True),
+            "coep": (CrossOriginEmbedderPolicy, True),
+            "corp": (CrossOriginResourcePolicy, True),
+            "referrer": (ReferrerPolicy, True),
+            "xdns": (XDNSPrefetchControl, True),
+            "xcdp": (XPermittedCrossDomainPolicies, True),
+            "hsts": (HSTS, True),
+            "wshsts": (WsHSTS, True),
+            "xframe": (XFrame, True),
+            "cacheControl": (CacheControl, True),
+            "PermissionPolicy": (PermissionsPolicy, False),
+        }
 
-            if "csp" in Option.keys() and Option["csp"] is not False:
-                app.add_middleware(ContentSecurityPolicy,Option=Option["csp"],script_nonce=script_nonce,style_nonce=style_nonce,report_only=report_only)
-            elif "csp" in Option.keys() and Option["csp"] is False:
-                pass
-            else:
-                app.add_middleware(ContentSecurityPolicy,script_nonce=script_nonce,style_nonce=style_nonce,report_only=report_only)
-
-            if "coop" in Option.keys() and Option["coop"] is not False:
-                app.add_middleware(CrossOriginOpenerPolicy, Option=Option["coop"])
-            elif "coop" in Option.keys() and Option["coop"] is False:
-                pass
-            else:
-                app.add_middleware(CrossOriginOpenerPolicy)
-
-            if "coep" in Option.keys() and Option["coep"] is not False:
-                app.add_middleware(CrossOriginEmbedderPolicy, Option=Option["coep"])
-            elif "coep" in Option.keys() and Option["coep"] is False:
-                pass
-            else:
-                app.add_middleware(CrossOriginEmbedderPolicy)
-
-            if "corp" in Option.keys() and Option["corp"] is not False:
-                app.add_middleware(CrossOriginResourcePolicy, Option=Option["corp"])
-            elif "corp" in Option.keys() and Option["corp"] is False:
-                pass
-            else:
-                app.add_middleware(CrossOriginResourcePolicy)
-
-            if "referrer" in Option.keys() and Option["referrer"] is not False:
-                app.add_middleware(ReferrerPolicy, Option=Option["referrer"])
-            elif "referrer" in Option.keys() and Option["referrer"] is False:
-                pass
-            else:
-                app.add_middleware(ReferrerPolicy)
-
-            if "xdns" in Option.keys() and Option["xdns"] is not False:
-                app.add_middleware(XDNSPrefetchControl, Option=Option["xdns"])
-            elif "xdns" in Option.keys() and Option["xdns"] is False:
-                pass
-            else:
-                app.add_middleware(XDNSPrefetchControl)
-
-            if "xcdp" in Option.keys() and Option["xcdp"] is not False:
-                app.add_middleware(XPermittedCrossDomainPolicies, Option=Option["xcdp"])
-            elif "xcdp" in Option.keys() and Option["xcdp"] is False:
-                pass
-            else:
-                app.add_middleware(XPermittedCrossDomainPolicies)
-
-            if "hsts" in Option.keys() and Option["hsts"] is not False:
-                app.add_middleware(HSTS, Option=Option["hsts"])
-            elif "hsts" in Option.keys() and Option["hsts"] is False:
-                pass
-            else:
-                app.add_middleware(HSTS)
+        for key, (cls, default) in MIDDLEWARE_REGISTRY.items():
+            val = Option.get(key)
+            if val is False:
+                continue
             
-            if "wshsts" in Option.keys() and Option["wshsts"] is not False:
-                app.add_middleware(WsHSTS, Option=Option["wshsts"])
-            elif "wshsts" in Option.keys() and Option["wshsts"] is False:
-                pass
-            else:
-                app.add_middleware(WsHSTS)
+            if val is not None:
+                app.add_middleware(cls, val)
+            elif default:
+                app.add_middleware(cls)
 
-            if "xframe" in Option.keys() and Option["xframe"] is not False:
-                app.add_middleware(XFrame, Option=Option["xframe"])
-            elif "xframe" in Option.keys() and Option["xframe"] is False:
-                pass
-            else:
-                app.add_middleware(XFrame)
+        csp_val = Option.get("csp")
+        if csp_val is not False:
+            csp_args: dict[str, Any] = {
+                "script_nonce": script_nonce, 
+                "style_nonce": style_nonce, 
+                "report_only": report_only,
+            }
+            if isinstance(csp_val, dict):
+                csp_args.update([("Option", csp_val)])
+            app.add_middleware(ContentSecurityPolicy, **csp_args)
 
-            if "PermissionPolicy" in Option.keys() and Option["PermissionPolicy"] is not False:
-                app.add_middleware(PermissionsPolicy, Option=Option["PermissionPolicy"])
-            else:
-                pass
-
-            if "clearSiteData" in Option.keys() and Routes.__len__() > 0 and Option["clearSiteData"] is not False:
-                app.add_middleware(ClearSiteData, Option=Option["clearSiteData"], Routes=Routes)
-            else:
-                pass
-
-            if Routes.__len__() > 0:
-                if "clearSiteData" in Option.keys() and Option["clearSiteData"] is False:
-                    pass
-                else:
-                    app.add_middleware(ClearSiteData, Routes=Routes)
-
-            if "cacheControl" in Option.keys() and Option["cacheControl"] is not False:
-                app.add_middleware(CacheControl, Option=Option["cacheControl"])
-            elif "cacheControl" in Option.keys() and Option["cacheControl"] is False:
-                pass
-            else:
-                app.add_middleware(CacheControl)
+        csd_val = Option.get("clearSiteData")
+        if csd_val is not False:
+            if isinstance(csd_val, dict):
+                app.add_middleware(ClearSiteData, csd_val, Routes=Routes)
+            elif len(Routes) > 0:
+                app.add_middleware(ClearSiteData, Routes=Routes)

@@ -2,13 +2,17 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+  Copyright 2021-2026, Motagamwala Taha Arif Ali '''
 
-from typing import Any
+from typing import Literal, Union
 from warnings import warn
 from starlette.types import Send, Receive, Scope, Message, ASGIApp
 
 from starlette.datastructures import MutableHeaders
+
+CrossOriginEmbedderPolicyLiteral = Literal['require-corp', 'unsafe-none', 'credentialless']
+
+CrossOriginEmbedderPolicyOptions = Union[dict[Literal['Cross-Origin-Embedder-Policy'], CrossOriginEmbedderPolicyLiteral], CrossOriginEmbedderPolicyLiteral]
 
 class CrossOriginEmbedderPolicy:
     ''' CrossOriginEmbedderPolicy class sets Cross-Origin-Embedder-Policy header.
@@ -17,16 +21,22 @@ class CrossOriginEmbedderPolicy:
         app.add_middleware(CrossOriginEmbedderPolicy, Option='')
 
     Parameter:
-        Option: The option for the class. Defaults to 'unsafe-none'.
+        Options (CrossOriginEmbedderPolicyOptions, optional):
+            - 'unsafe-none': Sets the Cross-Origin-Embedder-Policy header to 'unsafe-none' (Default).
+            - 'require-corp': Sets the Cross-Origin-Embedder-Policy header to 'require-corp'.
+            - 'credentialless': Sets the Cross-Origin-Embedder-Policy header to 'credentialless'.
     
     '''
-    def __init__(self, app: ASGIApp, Option: Any = 'unsafe-none'):
+    def __init__(self, app: ASGIApp, Option: CrossOriginEmbedderPolicyOptions = 'unsafe-none'):
         """
         Initializes the class with the given `app` and `Option` parameters.
 
         Args:
             app: The app object.
-            Option: The option for the class. Defaults to 'unsafe-none'.
+            Options (CrossOriginEmbedderPolicyOptions, optional):
+                - 'unsafe-none': Sets the Cross-Origin-Embedder-Policy header to 'unsafe-none' (Default).
+                - 'require-corp': Sets the Cross-Origin-Embedder-Policy header to 'require-corp'.
+                - 'credentialless': Sets the Cross-Origin-Embedder-Policy header to 'credentialless'.
 
         Raises:
             SyntaxError: If the option is not one of the valid options: 'require-corp', 'unsafe-none', 'credentialless'.
@@ -47,9 +57,9 @@ class CrossOriginEmbedderPolicy:
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
         Parameters:
-            scope (Dict[str, Any]): The scope of the request.
-            receive (Callable[[], Awaitable[Dict[str, Any]]]): A function that returns a coroutine that reads messages from the server.
-            send (Callable[[Dict[str, Any]], Awaitable[None]]): A function that sends messages to the server.
+            scope (Scope): The scope of the request.
+            receive (Receive): A function that returns a coroutine that reads messages from the server.
+            send (Send): A function that sends messages to the server.
 
         Returns:
             None

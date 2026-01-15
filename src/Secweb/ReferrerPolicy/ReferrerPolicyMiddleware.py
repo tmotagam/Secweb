@@ -2,13 +2,16 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+  Copyright 2021-2026, Motagamwala Taha Arif Ali '''
 
-from typing import Any
+from typing import List, Literal, Union
 from warnings import warn
 from starlette.datastructures import MutableHeaders
 from starlette.types import Send, Receive, Scope, Message, ASGIApp
 
+ReferrerPolicyLiteral = List[Literal['no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'same-origin', 'strict-origin', 'strict-origin-when-cross-origin', 'unsafe-url']]
+
+ReferrerPolicyOptions = Union[dict[Literal['Referrer-Policy'], ReferrerPolicyLiteral], ReferrerPolicyLiteral]
 
 class ReferrerPolicy:
     ''' ReferrerPolicy class sets Referrer-Policy header.
@@ -17,29 +20,29 @@ class ReferrerPolicy:
         app.add_middleware(ReferrerPolicy, Option=[])
 
     Parameter:
-        Option (list[str], optional): The `Option` parameter is a list of string that contains the option for the `Referrer-Policy`. The default value is ['strict-origin-when-cross-origin'].
+        Option (ReferrerPolicyOptions, optional): The `Option` parameter is a list of string that contains the option for the `Referrer-Policy`. The default value is ['strict-origin-when-cross-origin'].
     
     '''
-    def __init__(self, app: ASGIApp, Option: Any = ['strict-origin-when-cross-origin']):
+    def __init__(self, app: ASGIApp, Option: ReferrerPolicyOptions = ['strict-origin-when-cross-origin']):
         """
         Initializes the class with the given `app` and `Option` parameters.
 
         Parameters:
-            app (object): The `app` parameter is the application object.
-            Option (list[str], optional): The `Option` parameter is a list of string that contains the option for the `Referrer-Policy`. The default value is ['strict-origin-when-cross-origin'].
+            app (ASGIApp): The `app` parameter is the application object.
+            Option (ReferrerPolicyOptions, optional): The `Option` parameter is a list of string that contains the option for the `Referrer-Policy`. The default value is ['strict-origin-when-cross-origin'].
 
         Raises:
-            SyntaxError: If the `Referrer-Policy` option is not one of the valid options.
+            SyntaxError: If the value of `Option` is not one of the valid options.
 
         Returns:
             None
         """
         self.app = app
-        Policies = ['no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'same-origin', 'strict-origin', 'strict-origin-when-cross-origin', 'unsafe-url']
+        Policies: ReferrerPolicyLiteral = ['no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'same-origin', 'strict-origin', 'strict-origin-when-cross-origin', 'unsafe-url']
         self.policystring = ''
         if not isinstance(Option, list):
             warn('ReferrerPolicy middleware will now accept list of string(s) rather than dictonary eg. Option={"Referrer-Policy": "strict-origin-when-cross-origin"} will be Option=["strict-origin-when-cross-origin"]', SyntaxWarning, 2)
-            if Option['Referrer-Policy'] in Policies:
+            if isinstance(Option['Referrer-Policy'], str) and Option['Referrer-Policy'] in Policies:
                 self.policystring = Option['Referrer-Policy']
             elif len(Option['Referrer-Policy']) > 1:
                 for option in Option['Referrer-Policy']:
@@ -49,19 +52,19 @@ class ReferrerPolicy:
             else:
                 raise SyntaxError('Referrer-Policy has 8 options 1> "no-referrer" 2> "no-referrer-when-downgrade" 3> "origin" 4> "origin-when-cross-origin" 5> "same-origin" 6> "strict-origin" 7> "strict-origin-when-cross-origin" 8> "unsafe-url"')
         else:
-            for option in Option: # type: ignore
+            for option in Option:
                 if option not in Policies:
                     raise SyntaxError('ReferrerPolicy has 8 options 1> "no-referrer" 2> "no-referrer-when-downgrade" 3> "origin" 4> "origin-when-cross-origin" 5> "same-origin" 6> "strict-origin" 7> "strict-origin-when-cross-origin" 8> "unsafe-url"')
-            self.policystring = ', '.join(Option) # type: ignore
+            self.policystring = ', '.join(Option)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
         Parameters:
-            scope (Dict[str, Any]): The scope of the request.
-            receive (Callable[[], Awaitable[Dict[str, Any]]]): A function that returns a coroutine that reads messages from the server.
-            send (Callable[[Dict[str, Any]], Awaitable[None]]): A function that sends messages to the server.
+            scope (Scope): The scope of the request.
+            receive (Receive): A function that returns a coroutine that reads messages from the server.
+            send (Send): A function that sends messages to the server.
 
         Returns:
             None

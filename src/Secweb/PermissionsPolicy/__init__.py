@@ -1,1 +1,1 @@
-from .PermissionsPolicyMiddleware import PermissionsPolicy
+from .PermissionsPolicyMiddleware import PermissionsPolicy as PermissionsPolicy

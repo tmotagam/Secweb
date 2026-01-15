@@ -1,1 +1,1 @@
-from .ClearSiteDataMiddleware import ClearSiteData
+from .ClearSiteDataMiddleware import ClearSiteData as ClearSiteData

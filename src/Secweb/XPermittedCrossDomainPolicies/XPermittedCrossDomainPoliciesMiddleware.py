@@ -2,13 +2,16 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+  Copyright 2021-2026, Motagamwala Taha Arif Ali '''
 
-from typing import Any
+from typing import Literal, Union
 from warnings import warn
 from starlette.datastructures import MutableHeaders
 from starlette.types import Send, Receive, Scope, Message, ASGIApp
 
+XPermittedCrossDomainPoliciesLiteral = Literal['none', 'master-only', 'by-content-type', 'all']
+
+XPermittedCrossDomainPoliciesOptions = Union[dict[Literal['X-Permitted-Cross-Domain-Policies'], XPermittedCrossDomainPoliciesLiteral], XPermittedCrossDomainPoliciesLiteral]
 
 class XPermittedCrossDomainPolicies:
     ''' XPermittedCrossDomainPolicies class sets X-Permitted-Cross-Domain-Policies header.
@@ -17,16 +20,16 @@ class XPermittedCrossDomainPolicies:
         app.add_middleware(XPermittedCrossDomainPolicies, Option='')
 
     Parameter:
-        Option (str): Optional cross-domain policy option. Default is 'none'.
+        Option (XPermittedCrossDomainPoliciesOptions, optional): cross-domain policy options. Default is 'none'.
 
     '''
-    def __init__(self, app: ASGIApp, Option: Any = 'none'):
+    def __init__(self, app: ASGIApp, Option: XPermittedCrossDomainPoliciesOptions = 'none'):
         """
         Initializes the class with the given app and optional cross-domain policy option.
 
         Parameters:
-            app (object): The app object.
-            Option (str): Optional cross-domain policy option. Default is 'none'.
+            app (ASGIApp): The app object.
+            Option (XPermittedCrossDomainPoliciesOptions, optional): cross-domain policy options. Default is 'none'.
 
         Raises:
             SyntaxError: If the value of the Option is not one of the valid policies.
@@ -50,9 +53,9 @@ class XPermittedCrossDomainPolicies:
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
         Parameters:
-            scope (Dict[str, Any]): The scope of the request.
-            receive (Callable[[], Awaitable[Dict[str, Any]]]): A function that returns a coroutine that reads messages from the server.
-            send (Callable[[Dict[str, Any]], Awaitable[None]]): A function that sends messages to the server.
+            scope (Scope): The scope of the request.
+            receive (Receive): A function that returns a coroutine that reads messages from the server.
+            send (Send): A function that sends messages to the server.
 
         Returns:
             None

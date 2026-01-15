@@ -1,1 +1,1 @@
-from .XDNSPrefetchControlMiddleware import XDNSPrefetchControl
+from .XDNSPrefetchControlMiddleware import XDNSPrefetchControl as XDNSPrefetchControl
