@@ -1,1 +1,1 @@
-from .CacheControlMiddleware import CacheControl
+from .CacheControlMiddleware import CacheControl as CacheControl

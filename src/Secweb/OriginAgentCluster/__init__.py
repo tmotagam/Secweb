@@ -1,1 +1,1 @@
-from .OriginAgentClusterMiddleware import OriginAgentCluster
+from .OriginAgentClusterMiddleware import OriginAgentCluster as OriginAgentCluster

@@ -2,14 +2,17 @@
 requires = ["setuptools >= 77.0.3"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.package-data]
+"secweb" = ["py.typed"]
+
 [project]
 name = "Secweb"
-version = "1.25.2"
+version = "1.30.10"
 authors = [ { name="Motagamwala Taha Arif Ali", email = "tahaar5321@gmail.com" }, ]
 description = "Secweb is a pack of security middlewares for fastApi and starlette servers it includes CSP, HSTS, and many more"
 readme = "README.md"
 keywords=['fastapi security header', 'security header', 'starlette security header', 'secweb', 'fastapi csp', 'starlette csp', 'csp']
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = "MPL-2.0"
 classifiers = [
     "Programming Language :: Python :: 3",

@@ -1,1 +1,1 @@
-from .XDownloadOptionsMiddleware import XDownloadOptions
+from .XDownloadOptionsMiddleware import XDownloadOptions as XDownloadOptions

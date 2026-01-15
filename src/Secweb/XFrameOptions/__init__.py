@@ -1,1 +1,1 @@
-from .XFrameOptionsMiddleware import XFrame
+from .XFrameOptionsMiddleware import XFrame as XFrame

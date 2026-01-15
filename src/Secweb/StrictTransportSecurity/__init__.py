@@ -1,1 +1,1 @@
-from .StrictTransportSecurityMiddleware import HSTS
+from .StrictTransportSecurityMiddleware import HSTS as HSTS

@@ -2,7 +2,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+  Copyright 2021-2026, Motagamwala Taha Arif Ali '''
 
 from starlette.datastructures import MutableHeaders
 from starlette.types import Send, Receive, Scope, Message, ASGIApp
@@ -20,7 +20,7 @@ class XContentTypeOptions:
         Initializes a new instance of the class.
 
         Parameters:
-            app (object): The app object.
+            app (ASGIApp): The app object.
 
         Returns:
             None
@@ -32,9 +32,9 @@ class XContentTypeOptions:
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
         Parameters:
-            scope (Dict[str, Any]): The scope of the request.
-            receive (Callable[[], Awaitable[Dict[str, Any]]]): A function that returns a coroutine that reads messages from the server.
-            send (Callable[[Dict[str, Any]], Awaitable[None]]): A function that sends messages to the server.
+            scope (Scope): The scope of the request.
+            receive (Receive): A function that returns a coroutine that reads messages from the server.
+            send (Send): A function that sends messages to the server.
 
         Returns:
             None

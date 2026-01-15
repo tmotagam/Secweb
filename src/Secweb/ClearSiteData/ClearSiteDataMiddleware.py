@@ -2,14 +2,27 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+  Copyright 2021-2026, Motagamwala Taha Arif Ali '''
 
-from typing import Any, Pattern
+from typing import Pattern, TypedDict
 from starlette.datastructures import MutableHeaders
 from starlette.types import Send, Receive, Scope, Message, ASGIApp
 
 from starlette.convertors import CONVERTOR_TYPES
 from re import compile, escape
+
+ClearSiteDataOptions = TypedDict(
+    'ClearSiteDataOptions',
+    {
+        '*': bool,
+        'cache': bool,
+        'cookies': bool,
+        'storage': bool,
+        'prefetchCache': bool,
+        'prerenderCache': bool
+    },
+    total=False
+)
 
 def __path_regex_builder__(path: str) -> Pattern[str]:
     """
@@ -57,19 +70,31 @@ class ClearSiteData:
     Example:
         app.add_middleware(ClearSiteData, Option={}, Routes=[])
 
-    Parameter:
-        Option (dict, optional): The options for the class are {'*': True, 'cache': True, 'cookies': True, 'storage': True}. Defaults to {'*': True}.
-        Routes (list, optional): The list of routes. Defaults to [].
+    Parameters:
+        Option (ClearSiteDataOptions, optional):
+            - '*': bool, # Cleans all the browser storage, cache, and cookies. (Default: True)
+            - 'cache': bool, # Cleans the browser cache.
+            - 'cookies': bool, # Cleans the browser cookies.
+            - 'storage': bool # Cleans the browser storage.
+            - 'prefetchCache': bool # Cleans the browser prefetch speculations.
+            - 'prerenderCache': bool # Cleans the browser prerender speculations.
+        Routes (list): The list of routes. Defaults to [].
     
     '''
-    def __init__(self, app: ASGIApp, Option: Any = {'*': True}, Routes: "list[str]" = []):
+    def __init__(self, app: ASGIApp, Option: ClearSiteDataOptions = {'*': True}, Routes: list[str] = []):
         """
         Initializes the class with the provided parameters.
 
         Args:
-            app (object): The application object.
-            Option (dict, optional): The options for the class are {'*': True/False, 'cache': True/False, 'cookies': True/False, 'storage': True/False}. Defaults to {'*': True}.
-            Routes (list, optional): The list of routes. Defaults to [].
+            app (ASGIApp): The application object.
+            Option (ClearSiteDataOptions, optional):
+                - '*': bool, # Cleans all the browser storage, cache, and cookies. (Default: True)
+                - 'cache': bool, # Cleans the browser cache.
+                - 'cookies': bool, # Cleans the browser cookies.
+                - 'storage': bool # Cleans the browser storage.
+                - 'prefetchCache': bool # Cleans the browser prefetch speculations.
+                - 'prerenderCache': bool # Cleans the browser prerender speculations.
+            Routes (list): The list of routes. Defaults to [].
 
         Raises:
             SyntaxError: If the routes are empty.
@@ -97,18 +122,24 @@ class ClearSiteData:
             if 'storage' in Option and Option['storage'] is True:
                 self.policyString += '"storage"'
                 Option.pop('storage')
+            if 'prefetchCache' in Option and Option['prefetchCache'] is True:
+                self.policyString += '"prefetchCache"' if list(Option.keys()).__len__() == 1 else '"prefetchCache", '
+                Option.pop('prefetchCache')
+            if 'prerenderCache' in Option and Option['prerenderCache'] is True:
+                self.policyString += '"prerenderCache"'
+                Option.pop('prerenderCache')
 
         if list(Option.keys()).__len__() != 0 :
-            raise SyntaxError('Clear-Site-Data has 4 options 1> "cache" 2> "cookies" 3> "storage" 4> "*"')
+            raise SyntaxError('Clear-Site-Data has 6 options 1> "cache" 2> "cookies" 3> "storage" 4> "prefetchCache" 5> "prerenderCache" 6> "*"')
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
         Parameters:
-            scope (Dict[str, Any]): The scope of the request.
-            receive (Callable[[], Awaitable[Dict[str, Any]]]): A function that returns a coroutine that reads messages from the server.
-            send (Callable[[Dict[str, Any]], Awaitable[None]]): A function that sends messages to the server.
+            scope (Scope): The scope of the request.
+            receive (Receive): A function that returns a coroutine that reads messages from the server.
+            send (Send): A function that sends messages to the server.
 
         Returns:
             None

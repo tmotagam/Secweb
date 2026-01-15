@@ -1,1 +1,1 @@
-from .xXSSProtectionMiddleware import xXSSProtection
+from .xXSSProtectionMiddleware import xXSSProtection as xXSSProtection

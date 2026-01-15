@@ -2,12 +2,31 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+  Copyright 2021-2026, Motagamwala Taha Arif Ali '''
 
-from typing import Any
+from typing import TypedDict
 from starlette.types import Send, Receive, Scope, Message, ASGIApp
 
 from starlette.datastructures import MutableHeaders
+
+CacheControlOptions = TypedDict(
+    'CacheControlOptions', {
+        'max-age': int,
+        's-maxage': int,
+        'no-cache': bool,
+        'no-store': bool,
+        'no-transform': bool,
+        'must-revalidate': bool,
+        'proxy-revalidate': bool,
+        'must-understand': bool,
+        'private': bool,
+        'public': bool,
+        'immutable': bool,
+        'stale-while-revalidate': int,
+        'stale-if-error': int
+    },
+    total=False
+)
 
 class CacheControl:
     ''' CacheControl class sets Cache-Control header.
@@ -16,8 +35,8 @@ class CacheControl:
         app.add_middleware(CacheControl, Option={})
 
     Parameter:
-        Option (dict): Optional dictionary containing cache control options.
-            - 'max-age' (int): The maximum age of the cache in seconds.
+        Option (CacheControlOptions, optional): Dictionary containing cache control options.
+            - 'max-age' (int): The maximum age of the cache in seconds. (Dafault: 604800)
             - 's-maxage' (int): The maximum age of the shared cache in seconds.
             - 'no-cache' (bool): Specifies whether the cache should be bypassed.
             - 'no-store' (bool): Specifies whether the cache should not store any response.
@@ -25,21 +44,21 @@ class CacheControl:
             - 'must-revalidate' (bool): Specifies whether the cache must revalidate the response.
             - 'proxy-revalidate' (bool): Specifies whether the cache must revalidate the response on the proxy server.
             - 'must-understand' (bool): Specifies whether the cache must understand the response.
-            - 'private' (bool): Specifies whether the cache response is specific to a user.
+            - 'private' (bool): Specifies whether the cache response is specific to a user. (Default: True)
             - 'public' (bool): Specifies whether the cache response is public.
             - 'immutable' (bool): Specifies whether the cache response is immutable.
             - 'stale-while-revalidate' (int): The maximum age of stale content in seconds while revalidating.
             - 'stale-if-error' (int): The maximum age of stale content in seconds if a server side error occurs.
     
     '''
-    def __init__(self, app: ASGIApp, Option: Any = {'max-age': 604800, 'private': True }):
+    def __init__(self, app: ASGIApp, Option: CacheControlOptions = {'max-age': 604800, 'private': True }):
         """
         Initializes a new instance of the class.
 
         Parameters:
-            app (object): The application object.
-            Option (dict): Optional dictionary containing cache control options.
-                - 'max-age' (int): The maximum age of the cache in seconds.
+            app (ASGIApp): The application object.
+            Option (CacheControlOptions, optional): Dictionary containing cache control options.
+                - 'max-age' (int): The maximum age of the cache in seconds. (Default: 604800)
                 - 's-maxage' (int): The maximum age of the shared cache in seconds.
                 - 'no-cache' (bool): Specifies whether the cache should be bypassed.
                 - 'no-store' (bool): Specifies whether the cache should not store any response.
@@ -47,7 +66,7 @@ class CacheControl:
                 - 'must-revalidate' (bool): Specifies whether the cache must revalidate the response.
                 - 'proxy-revalidate' (bool): Specifies whether the cache must revalidate the response on the proxy server.
                 - 'must-understand' (bool): Specifies whether the cache must understand the response.
-                - 'private' (bool): Specifies whether the cache response is specific to a user.
+                - 'private' (bool): Specifies whether the cache response is specific to a user. (Default: True)
                 - 'public' (bool): Specifies whether the cache response is public.
                 - 'immutable' (bool): Specifies whether the cache response is immutable.
                 - 'stale-while-revalidate' (int): The maximum age of stale content in seconds while revalidating.
@@ -108,9 +127,9 @@ class CacheControl:
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
         Parameters:
-            scope (Dict[str, Any]): The scope of the request.
-            receive (Callable[[], Awaitable[Dict[str, Any]]]): A function that returns a coroutine that reads messages from the server.
-            send (Callable[[Dict[str, Any]], Awaitable[None]]): A function that sends messages to the server.
+            scope (Scope): The scope of the request.
+            receive (Receive): A function that returns a coroutine that reads messages from the server.
+            send (Send): A function that sends messages to the server.
 
         Returns:
             None

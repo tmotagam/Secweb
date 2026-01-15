@@ -2,13 +2,16 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+  Copyright 2021-2026, Motagamwala Taha Arif Ali '''
 
-from typing import Any
+from typing import Literal, Union
 from warnings import warn
 from starlette.datastructures import MutableHeaders
 from starlette.types import Send, Receive, Scope, Message, ASGIApp
 
+XDNSPrefetchControlLiteral = Literal['on', 'off']
+
+XDNSPrefetchControlOptions = Union[dict[Literal['X-DNS-Prefetch-Control'], XDNSPrefetchControlLiteral], XDNSPrefetchControlLiteral]
 
 class XDNSPrefetchControl:
     ''' XDNSPrefetchControl class sets X-DNS-Prefetch-Control header.
@@ -17,16 +20,20 @@ class XDNSPrefetchControl:
         app.add_middleware(XDNSPrefetchControl, Option='')
 
     Parameter:
-        Option (str): Optional. The option for the class object. Defaults to 'off'.
+        Option (XDNSPrefetchControlOptions, Optional):
+            - 'on': Sets the value of the `X-DNS-Prefetch-Control` header to 'on'.
+            - 'off': Sets the value of the `X-DNS-Prefetch-Control` header to 'off'. (Default)
     
     '''
-    def __init__(self, app: ASGIApp, Option: Any = 'off'):
+    def __init__(self, app: ASGIApp, Option: XDNSPrefetchControlOptions = 'off'):
         """
         Initializes the class object.
 
         Parameters:
-            app (object): The application object.
-            Option (str): Optional. The option for the class object. Defaults to 'off'.
+            app (ASGIApp): The application object.
+            Option (XDNSPrefetchControlOptions, Optional):
+                - 'on': Sets the value of the `X-DNS-Prefetch-Control` header to 'on'.
+                - 'off': Sets the value of the `X-DNS-Prefetch-Control` header to 'off'. (Default)
 
         Raises:
             SyntaxError: If the value of the Option is neither 'on' nor 'off'.
@@ -46,9 +53,9 @@ class XDNSPrefetchControl:
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
         Parameters:
-            scope (Dict[str, Any]): The scope of the request.
-            receive (Callable[[], Awaitable[Dict[str, Any]]]): A function that returns a coroutine that reads messages from the server.
-            send (Callable[[Dict[str, Any]], Awaitable[None]]): A function that sends messages to the server.
+            scope (Scope): The scope of the request.
+            receive (Receive): A function that returns a coroutine that reads messages from the server.
+            send (Send): A function that sends messages to the server.
 
         Returns:
             None

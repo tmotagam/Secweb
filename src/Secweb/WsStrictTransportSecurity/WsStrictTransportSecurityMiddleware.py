@@ -2,12 +2,21 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+  Copyright 2021-2026, Motagamwala Taha Arif Ali '''
 
-from typing import Any
+from typing import TypedDict
 from starlette.datastructures import MutableHeaders
 from starlette.types import Send, Receive, Scope, Message, ASGIApp
 
+WsHSTSOptions = TypedDict(
+    'WsHSTSOptions',
+    {
+        'max-age': int,
+        'includeSubDomains': bool,
+        'preload': bool
+    },
+    total=False
+)
 
 class WsHSTS:
     ''' HSTS class sets Strict-Transport-Security Header for Websocket.
@@ -16,19 +25,25 @@ class WsHSTS:
         app.add_middleware(WsHSTS, Option={})
 
     Parameter :
-        Option (dict, optional): The options for the class. Defaults to {'max-age': 31536000, 'includeSubDomains': True, 'preload': False}.
+        Option (WsHSTSOptions, optional):
+            - max-age (int): The maximum age of the Strict-Transport-Security header in seconds. (Default: 31536000)
+            - includeSubDomains (bool): Whether to include subdomains in the Strict-Transport-Security header. (Default: True)
+            - preload (bool): Whether to preload the Strict-Transport-Security header. (Default: False)
     
     '''
-    def __init__(self, app: ASGIApp, Option: Any = {'max-age': 31536000, 'includeSubDomains': True, 'preload': False}):
+    def __init__(self, app: ASGIApp, Option: WsHSTSOptions = {'max-age': 31536000, 'includeSubDomains': True, 'preload': False}):
         """
         Initializes an instance of the class.
 
         Args:
-            app (object): The application object.
-            Option (dict, optional): The options for the class. Defaults to {'max-age': 31536000, 'includeSubDomains': True, 'preload': False}.
+            app (ASGIApp): The application object.
+            Option (WsHSTSOptions, optional):
+                - max-age (int): The maximum age of the Strict-Transport-Security header in seconds. (Default: 31536000)
+                - includeSubDomains (bool): Whether to include subdomains in the Strict-Transport-Security header. (Default: True)
+                - preload (bool): Whether to preload the Strict-Transport-Security header. (Default: False)
 
         Raises:
-            SyntaxError: If 'max-age' is not a positive integer or if the 'Option' dictionary is not valid.
+            SyntaxError: If 'max-age' is not a positive integer or if the 'Option' is not valid.
 
         Returns:
             None
@@ -41,10 +56,8 @@ class WsHSTS:
             else:
                 raise SyntaxError('max-age needs to be a positive integer')
 
-            try:
-                if Option['includeSubDomains'] is not False:
-                    self.PolicyString += '; includeSubDomains'
-            except KeyError:
+            
+            if 'includeSubDomains' in Option and Option['includeSubDomains'] is not False:
                 self.PolicyString += '; includeSubDomains'
 
             if 'preload' in Option and Option['preload'] is True:
@@ -58,9 +71,9 @@ class WsHSTS:
         Asynchronously handles Websocket requests by routing them to the appropriate handler based on the request path.
 
         Parameters:
-            scope (Dict[str, Any]): The scope of the request.
-            receive (Callable[[], Awaitable[Dict[str, Any]]]): A function that returns a coroutine that reads messages from the server.
-            send (Callable[[Dict[str, Any]], Awaitable[None]]): A function that sends messages to the server.
+            scope (Scope): The scope of the request.
+            receive (Receive): A function that returns a coroutine that reads messages from the server.
+            send (Send): A function that sends messages to the server.
         """
         if scope["type"] != "websocket":
             return await self.app(scope, receive, send)

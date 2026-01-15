@@ -1,1 +1,1 @@
-from .CrossOriginResourcePolicyMiddleware import CrossOriginResourcePolicy
+from .CrossOriginResourcePolicyMiddleware import CrossOriginResourcePolicy as CrossOriginResourcePolicy

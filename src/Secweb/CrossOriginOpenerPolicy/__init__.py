@@ -1,1 +1,1 @@
-from .CrossOriginOpenerPolicyMiddleware import CrossOriginOpenerPolicy
+from .CrossOriginOpenerPolicyMiddleware import CrossOriginOpenerPolicy as CrossOriginOpenerPolicy

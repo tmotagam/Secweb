@@ -1,1 +1,1 @@
-from .XPermittedCrossDomainPoliciesMiddleware import XPermittedCrossDomainPolicies
+from .XPermittedCrossDomainPoliciesMiddleware import XPermittedCrossDomainPolicies as XPermittedCrossDomainPolicies

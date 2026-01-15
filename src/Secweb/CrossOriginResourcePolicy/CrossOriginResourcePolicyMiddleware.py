@@ -2,13 +2,17 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright 2021-2025, Motagamwala Taha Arif Ali '''
+  Copyright 2021-2026, Motagamwala Taha Arif Ali '''
 
-from typing import Any
+from typing import Literal, Union
 from warnings import warn
 from starlette.types import Send, Receive, Scope, Message, ASGIApp
 
 from starlette.datastructures import MutableHeaders
+
+CrossOriginResourcePolicyLiteral = Literal['same-site', 'same-origin', 'cross-origin']
+
+CrossOriginResourcePolicyOptions = Union[dict[Literal['Cross-Origin-Resource-Policy'], CrossOriginResourcePolicyLiteral], CrossOriginResourcePolicyLiteral]
 
 class CrossOriginResourcePolicy:
     ''' CrossOriginResourcePolicy class sets Cross-Origin-Resource-Policy header.
@@ -17,19 +21,25 @@ class CrossOriginResourcePolicy:
         app.add_middleware(CrossOriginResourcePolicy, Option='')
 
     Parameter:
-        Option (str): The option for the class. Default is 'cross-origin'.
+        Option (CrossOriginResourcePolicyOptions, optional):
+            - 'same-site': Sets the Cross-Origin-Resource-Policy header to 'same-site'. (Default)
+            - 'same-origin': Sets the Cross-Origin-Resource-Policy header to 'same-origin'.
+            - 'cross-origin': Sets the Cross-Origin-Resource-Policy header to 'cross-origin'.
         
     '''
-    def __init__(self, app: ASGIApp, Option: Any = 'cross-origin'):
+    def __init__(self, app: ASGIApp, Option: CrossOriginResourcePolicyOptions = 'cross-origin'):
         """
         Initializes an instance of the class.
 
         Parameters:
-            app (object): The app object.
-            Option (str): The option for the class. Default is 'cross-origin'.
+            app (ASGIApp): The app object.
+            Option (CrossOriginResourcePolicyOptions, optional):
+                - 'same-site': Sets the Cross-Origin-Resource-Policy header to 'same-site'. (Default)
+                - 'same-origin': Sets the Cross-Origin-Resource-Policy header to 'same-origin'.
+                - 'cross-origin': Sets the Cross-Origin-Resource-Policy header to 'cross-origin'.
 
         Raises:
-            SyntaxError: If the 'CrossOriginResourcePolicy' Option is not one of 'same-site', 'same-origin', 'cross-origin'.
+            SyntaxError: If the 'CrossOriginResourcePolicy' Option is not one of the allowed policies.
 
         Returns:
             None
@@ -50,9 +60,9 @@ class CrossOriginResourcePolicy:
         Asynchronously handles HTTP requests by routing them to the appropriate handler based on the request path.
 
         Parameters:
-            scope (Dict[str, Any]): The scope of the request.
-            receive (Callable[[], Awaitable[Dict[str, Any]]]): A function that returns a coroutine that reads messages from the server.
-            send (Callable[[Dict[str, Any]], Awaitable[None]]): A function that sends messages to the server.
+            scope (Scope): The scope of the request.
+            receive (Receive): A function that returns a coroutine that reads messages from the server.
+            send (Send): A function that sends messages to the server.
 
         Returns:
             None
