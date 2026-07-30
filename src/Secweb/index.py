@@ -1,177 +1,93 @@
-'''  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+from __future__ import annotations
+import typing
+from typing import TYPE_CHECKING
 
-  Copyright 2021-2026, Motagamwala Taha Arif Ali '''
+from . import headers
+from .middleware import SetMiddleware
 
-from typing import Any, Literal, TypedDict, Union
-from starlette.applications import Starlette
-
-from .WsStrictTransportSecurity.WsStrictTransportSecurityMiddleware import WsHSTS, WsHSTSOptions
-from .XFrameOptions.XFrameOptionsMiddleware import XFrame, XFrameOptions
-from .CrossOriginEmbedderPolicy.CrossOriginEmbedderPolicyMiddleware import CrossOriginEmbedderPolicy, CrossOriginEmbedderPolicyOptions
-from .CrossOriginOpenerPolicy.CrossOriginOpenerPolicyMiddleware import CrossOriginOpenerPolicy, CrossOriginOpenerPolicyOptions
-from .CrossOriginResourcePolicy.CrossOriginResourcePolicyMiddleware import CrossOriginResourcePolicy, CrossOriginResourcePolicyOptions
-from .xXSSProtection.xXSSProtectionMiddleware import xXSSProtection
-from .StrictTransportSecurity.StrictTransportSecurityMiddleware import HSTS, HSTSOptions
-from .XPermittedCrossDomainPolicies.XPermittedCrossDomainPoliciesMiddleware import XPermittedCrossDomainPolicies, XPermittedCrossDomainPoliciesOptions
-from .XDownloadOptions.XDownloadOptionsMiddleware import XDownloadOptions
-from .XDNSPrefetchControl.XDNSPrefetchControlMiddleware import XDNSPrefetchControl, XDNSPrefetchControlOptions
-from .XContentTypeOptions.XContentTypeOptionsMiddleware import XContentTypeOptions
-from .ReferrerPolicy.ReferrerPolicyMiddleware import ReferrerPolicy, ReferrerPolicyOptions
-from .OriginAgentCluster.OriginAgentClusterMiddleware import OriginAgentCluster
-from .ContentSecurityPolicy.ContentSecurityPolicyMiddleware import ContentSecurityPolicy, ContentSecurityPolicyOptions
-from .ClearSiteData.ClearSiteDataMiddleware import ClearSiteData, ClearSiteDataOptions
-from .CacheControl.CacheControlMiddleware import CacheControl, CacheControlOptions
-
-
-SecWebOptions = TypedDict(
-    'SecWebOptions',
-    {
-        'csp': Union[Literal[False], ContentSecurityPolicyOptions],
-        'coop': Union[Literal[False], CrossOriginOpenerPolicyOptions],
-        'coep': Union[Literal[False], CrossOriginEmbedderPolicyOptions],
-        'corp': Union[Literal[False], CrossOriginResourcePolicyOptions],
-        'referrer': Union[Literal[False], ReferrerPolicyOptions],
-        'xdns': Union[Literal[False], XDNSPrefetchControlOptions],
-        'xcdp': Union[Literal[False], XPermittedCrossDomainPoliciesOptions],
-        'hsts': Union[Literal[False], HSTSOptions],
-        'wshsts': Union[Literal[False], WsHSTSOptions],
-        'xframe': Union[Literal[False], XFrameOptions],
-        'clearSiteData': Union[Literal[False], ClearSiteDataOptions],
-        'cacheControl': Union[Literal[False], CacheControlOptions],
-        'xcto': Literal[False],
-        'xdo': Literal[False],
-        'xss': Literal[False],
-        'oac': Literal[False]
-    },
-    total=False
-)
+if TYPE_CHECKING:
+    from starlette.applications import Starlette
+    from ._types import SecWeb_Options
 
 
 class SecWeb:
-    """This Class is used for initializing all the middlewares CSP, COOP, etc. you can also activate/deactivate any of the middlewares by supplying them boolean values in the Option parameter.
-
-    Example :
-        SecWeb(app=app, Option={'csp': {'default-src': ["'self'"]}, 'xframe': False}, Routes=[], report_only=False, script_nonce=False, style_nonce=False)
-
-    Parameters :
-
-     app=YourappName This is the compulsory parameter
-
-     Option={} This is a dictionary and not compulsory parameter
-
-     Routes=[] This is a list of routes for Clear-Site-Data header and a compulsory parameter if you want to use that header
-
-     script_nonce=False This is an optional flag it will set nonce for your JS scripts
-
-     style_nonce=False This is an optional flag it will set the nonce for your CSS stylesheets
-
-     report_only=False This is an optional flag it will set the Content-Security-Policy-Report-Only header instead of the Content-Security-Policy header
-
-    Values :
-        'csp' for ContentSecurityPolicy
-
-        'coop' for CrossOriginOpenerPolicy
-
-        'coep' for CrossOriginEmbedderPolicy
-
-        'corp' for CrossOriginResourcePolicy
-
-        'referrer' for ReferrerPolicy
-
-        'xdns' for XDNSPrefetchControl
-
-        'xcdp' for XPermittedCrossDomainPolicies
-
-        'hsts' for HSTS/StrictTransportSecurity
-
-        'wshsts' for HSTS/StrictTransportSecurity for websockets
-
-        'xframe' for XFrame
-
-        'clearSiteData' for Clear-Site-Data
-
-        'cacheControl' for Cache-Control
-
-        'xcto' for X-Content-Type-Options
-
-        'xdo' for X-Download-Options
-
-        'xss' for x-xss-protection
-
-        'oac' for Origin-Agent-Cluster
-
-    This Values are for the Option parameter
-    
     """
-
-    def __init__(
-        self,
-        app: Starlette,
-        Option: SecWebOptions = {},
-        Routes: list[str] = [],
-        script_nonce: bool = False,
-        style_nonce: bool = False,
-        report_only: bool = False
-    ) -> None:
-
+    A class that configures and applies security-related HTTP headers to a Starlette application.
+    """
+    def __init__(self, app: Starlette, options: SecWeb_Options = {}, script_nonce: bool = False, style_nonce: bool = False, csp_report_only: bool = False, coep_report_only: bool = False):
         """
-        Initializes an instance of the class.
+        Initializes the SecWeb instance and injects the configured security headers into the application via middleware.
+
+        It parses the provided `options` dictionary to selectively apply various HTTP security headers 
+        like COEP, COOP, CSP, HSTS, etc. If a specific header configuration is explicitly set to False, 
+        that header will not be applied.
 
         Args:
-            app: The application object.
-            Option: A dictionary of options (default: {}).
-            Routes: A list of routes for the Clear-Site-Data header (default: []).
-            script_nonce: Whether to include script nonce (default: False).
-            style_nonce: Whether to include style nonce (default: False).
-            report_only: Whether to use Content-Security-Policy-Report-Only header instead of Content-Security-Policy (default: False).
+            app (Starlette): The Starlette application instance to which the middleware will be attached.
+            options (SecWeb_Options, optional): A dictionary of header configurations. Supported keys include 
+                'coep', 'coop', 'corp', 'xss', 'xcdp', 'xframe', 'xdns', 'xdo', 'xcto', 'oac', 'referrer', 
+                'cache_control', 'hsts', 'wshsts', 'csp'. Defaults to {}.
+            script_nonce (bool, optional): If True, generates and includes a nonce for inline scripts in the CSP. Defaults to False.
+            style_nonce (bool, optional): If True, generates and includes a nonce for inline styles in the CSP. Defaults to False.
+            csp_report_only (bool, optional): If True, configures CSP to operate in report-only mode. Defaults to False.
+            coep_report_only (bool, optional): If True, configures COEP to operate in report-only mode. Defaults to False.
 
-        Returns:
-            None
+        Example:
+            >>> app = FastAPI()
+            >>> SecWeb(app, options={'hsts': {'max-age': 31536000}, 'xframe': 'DENY'})
         """
-        
-        MIDDLEWARE_REGISTRY: dict[str, tuple[type, bool]] = {
-            "xdo": (XDownloadOptions, True),
-            "xcto": (XContentTypeOptions, True),
-            "oac": (OriginAgentCluster, True),
-            "xss": (xXSSProtection, True),
-            "coop": (CrossOriginOpenerPolicy, True),
-            "coep": (CrossOriginEmbedderPolicy, True),
-            "corp": (CrossOriginResourcePolicy, True),
-            "referrer": (ReferrerPolicy, True),
-            "xdns": (XDNSPrefetchControl, True),
-            "xcdp": (XPermittedCrossDomainPolicies, True),
-            "hsts": (HSTS, True),
-            "wshsts": (WsHSTS, True),
-            "xframe": (XFrame, True),
-            "cacheControl": (CacheControl, True),
-        }
+        Headers: list[tuple[bytes, bytes]] = []
+        WS_HSTS: tuple[bytes, bytes] | None = None
+        Dynamic_Headers: list = []
+        val = options.get('coep')
+        if val is not False:
+            Headers.append(headers.Cross_Origin_Embedder_Policy(option=val, report_only=coep_report_only)) if val is not None else Headers.append(headers.Cross_Origin_Embedder_Policy(report_only=coep_report_only))
+        val = options.get('coop')
+        if val is not False:
+            Headers.append(headers.Cross_Origin_Opener_Policy(option=val)) if val is not None else Headers.append(headers.Cross_Origin_Opener_Policy())
+        val = options.get('corp')
+        if val is not False:
+            Headers.append(headers.Cross_Origin_Resource_Policy(option=val)) if val is not None else Headers.append(headers.Cross_Origin_Resource_Policy())
+        val = options.get('xss')
+        if val is not False:
+            Headers.append(headers.X_XSS_Protection())
+        val = options.get('xcdp')
+        if val is not False:
+            Headers.append(headers.X_Permitted_Cross_Domain_Policies(option=val)) if val is not None else Headers.append(headers.X_Permitted_Cross_Domain_Policies())
+        val = options.get('xframe')
+        if val is not False:
+            Headers.append(headers.X_Frame(option=val)) if val is not None else Headers.append(headers.X_Frame())
+        val = options.get('xdns')
+        if val is not False:
+            Headers.append(headers.X_DNS_Prefetch_Control(option=val)) if val is not None else Headers.append(headers.X_DNS_Prefetch_Control())
+        val = options.get('xdo')
+        if val is not False:
+            Headers.append(headers.X_Download_Options())
+        val = options.get('xcto')
+        if val is not False:
+            Headers.append(headers.X_Content_Type_Options())
+        val = options.get('oac')
+        if val is not False:
+            Headers.append(headers.Origin_Agent_Cluster())
+        val = options.get('referrer')
+        if val is not False:
+            Headers.append(headers.Referrer_Policy(option=val)) if val is not None else Headers.append(headers.Referrer_Policy())
+        val = options.get('cache_control')
+        if val is not False:
+            Headers.append(headers.Cache_Control(options=val)) if val is not None else Headers.append(headers.Cache_Control())
+        val = options.get('hsts')
+        if val is not False:
+            Headers.append(headers.HSTS(options=val)) if val is not None else Headers.append(headers.HSTS())
+        val = options.get('wshsts')
+        if val is not False:
+            WS_HSTS = headers.WsHSTS(options=val) if val is not None else headers.WsHSTS()
 
-        for key, (cls, default) in MIDDLEWARE_REGISTRY.items():
-            val = Option.get(key)
-            if val is False:
-                continue
-            
-            if val is not None:
-                app.add_middleware(cls, val)
-            elif default:
-                app.add_middleware(cls)
+        val = options.get('csp')
+        if val is not False:
+            csp_result = headers.Content_Security_Policy(options=val, script_nonce_flag=script_nonce, style_nonce_flag=style_nonce, report_only=csp_report_only) if val is not None else headers.Content_Security_Policy(script_nonce_flag=script_nonce, style_nonce_flag=style_nonce, report_only=csp_report_only)
+            if callable(csp_result):
+                Dynamic_Headers.append(csp_result)
+            else:
+                Headers.append(typing.cast('tuple[bytes, bytes]', csp_result))
 
-        csp_val = Option.get("csp")
-        if csp_val is not False:
-            csp_args: dict[str, Any] = {
-                "script_nonce": script_nonce, 
-                "style_nonce": style_nonce, 
-                "report_only": report_only,
-            }
-            if isinstance(csp_val, dict):
-                csp_args.update([("Option", csp_val)])
-            app.add_middleware(ContentSecurityPolicy, **csp_args)
-
-        csd_val = Option.get("clearSiteData")
-        if csd_val is not False:
-            if isinstance(csd_val, dict):
-                app.add_middleware(ClearSiteData, csd_val, Routes=Routes)
-            elif len(Routes) > 0:
-                app.add_middleware(ClearSiteData, Routes=Routes)
+        app.add_middleware(SetMiddleware, headers=Headers, wshsts=WS_HSTS, dynamic_headers=Dynamic_Headers)

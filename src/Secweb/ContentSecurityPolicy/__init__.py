@@ -1,2 +1,0 @@
-from .ContentSecurityPolicyMiddleware import ContentSecurityPolicy as ContentSecurityPolicy
-from .ContentSecurityPolicyMiddleware import Nonce_Processor as Nonce_Processor
