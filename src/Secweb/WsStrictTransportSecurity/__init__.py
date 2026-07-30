@@ -1,1 +1,0 @@
-from .WsStrictTransportSecurityMiddleware import WsHSTS as WsHSTS

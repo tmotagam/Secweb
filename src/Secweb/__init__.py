@@ -1,1 +1,2 @@
-from .index import SecWeb as SecWeb
+from .index import SecWeb
+from .headers import *
