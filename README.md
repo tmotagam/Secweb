@@ -4,6 +4,10 @@
 ---
 Secweb is the pack of security headers for fastapi and can also be used for any framework created on starlette. It has 16 security headers for your websites/APIs.
 
+
+> [!NOTE]
+> The Permissions_Policy header lies in [development branch](https://github.com/tmotagam/Secweb/tree/Secweb-Beta#readme)
+
 ## **Features**
 
 - 🔒 **Secure Headers**: Automatically apply headers like `Strict-Transport-Security`, `Content-Security-Policy`, and more.
@@ -17,9 +21,7 @@ Secweb is the pack of security headers for fastapi and can also be used for any 
 - 📚 **Attribution to Trusted Sources**: Implements recommendations from MDN and OWASP.
 
 
-**The PermissionsPolicy middleware lies in development branch [here](https://github.com/tmotagam/Secweb/tree/Secweb-Beta#readme)**
-
-The list of middleware is as follows:
+The list of headers is as follows:
 
 1. Content Security Policy (CSP)
 <br>
@@ -107,7 +109,7 @@ from Secweb import SecWeb
 SecWeb(app=app, options={'referrer': ['no-referrer']}, script_nonce=False, style_nonce=False, csp_report_only=False, coep_report_only=False)
 ```
 
-The `options`-parameter uses 15 keys for calling middleware classes to set the user-defined policies or deactivating headers.
+The `options`-parameter uses 15 keys for calling functions to set the user-defined policies or deactivating headers.
 
 **Note: Deactivating the header(s) can only be done in SecWeb class in options param**
 
@@ -169,7 +171,7 @@ The values are as follows:
 SecWeb(app=app, options={'csp': {'default-src': ["'self'"]}, 'xframe':'SAMEORIGIN', 'hsts': {'max-age': 4, 'preload': True}, 'wshsts': {'max-age': 10, 'preload': True},'xcdp': 'all', 'xdns': 'on', 'referrer': ['no-referrer'], 'coep':{'require-corp': True}, 'coop':'same-origin-allow-popups', 'corp': 'same-site', 'cache_control': {'public': True, 's-maxage': 600}, 'xss': False})
 ```
 
-## Middleware Classes
+## Header Functions
 
 ### Content Security Policy (CSP)
 
@@ -232,7 +234,7 @@ Content_Security_Policy(app=app, options={'default-src': ["'self'"], 'base-uri':
 
 For more detail on CSP header go to [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy).
 
-For more detail on CSP-report-only header go to [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy-Report-Only).
+For more detail on CSP report only header go to [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy-Report-Only).
 
 ### Origin Agent Cluster
 
@@ -261,7 +263,7 @@ app = Starlette(routes=routes)
 Origin_Agent_Cluster(app)
 ```
 
-For more detail on Origin-Agent-Cluster header go to [WHATWG Site](https://html.spec.whatwg.org/multipage/origin.html#origin-keyed-agent-clusters).
+For more detail on Origin-Agent-Cluster header go to [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Origin-Agent-Cluster).
 
 ### Referrer Policy
 
@@ -440,6 +442,8 @@ app = Starlette(routes=routes)
 X_Download_Options(app=app)
 ```
 
+For more detail on X-Download-Options header go to [http.dev site](https://http.dev/x-download-options).
+
 ### X-Frame
 
 X_Frame function sets the X-Frame-Options header
@@ -498,7 +502,7 @@ app = Starlette(routes=routes)
 X_Permitted_Cross_Domain_Policies(app=app, option='none')
 ```
 
-For more detail on X-Permitted-Cross-Domain-Policies header go to [OWASP Site](https://owasp.org/www-project-secure-headers/#x-permitted-cross-domain-policies).
+For more detail on X-Permitted-Cross-Domain-Policies header go to [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Permitted-Cross-Domain-Policies).
 
 ### X-XSS-Protection
 
@@ -562,6 +566,8 @@ Cross_Origin_Embedder_Policy(app=app, option={'unsafe-none': True})
 
 For more detail on Cross Origin Embedder Policy header go to [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy).
 
+For more detail on Cross Origin Embedder Policy report only header go to [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Embedder-Policy-Report-Only)
+
 ### Cross Origin Opener Policy
 
 Cross_Origin_Opener_Policy function sets the Cross Origin Opener Policy header
@@ -617,7 +623,7 @@ routes=[...]
 
 app = Starlette(routes=routes)
 
-Cross_Origin_Resource_Policy(app=app, Option='same-site')
+Cross_Origin_Resource_Policy(app=app, option='same-site')
 ```
 
 For more detail on Cross Origin Resource Policy header go to [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy).
@@ -653,7 +659,6 @@ async def logout():
 routes=[...]
 
 app = Starlette(routes=routes)
-
 ```
 
 For more detail on Clear Site Data Header go to [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Clear-Site-Data).
