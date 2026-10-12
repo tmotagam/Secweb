@@ -212,7 +212,7 @@ from Secweb import Content_Security_Policy
 
 app = FastAPI()  
 
-Content_Security_Policy(app=app, options={'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': []}, script_nonce=False, style_nonce=False, report_only=False)
+Content_Security_Policy(app=app, options={'default-src': ["'self'"], 'base-uri': ["'self'"]}, script_nonce=False, style_nonce=False, report_only=False)
 ```
 
 #### For Starlette server
@@ -225,7 +225,7 @@ routes=[...]
 
 app = Starlette(routes=routes)
 
-Content_Security_Policy(app=app, options={'default-src': ["'self'"], 'base-uri': ["'self'"], 'block-all-mixed-content': []}, script_nonce=False, style_nonce=False, report_only=False)
+Content_Security_Policy(app=app, options={'default-src': ["'self'"], 'base-uri': ["'self'"]}, script_nonce=False, style_nonce=False, report_only=False)
 ```
 
 * `script_nonce=False`: nonce flag for inline Javascript

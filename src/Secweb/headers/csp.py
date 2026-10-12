@@ -40,7 +40,6 @@ def Nonce_Processor(ENTROPY: int = 90) -> tuple[str, str]:
 DEFAULT_CSP_OPTIONS: Content_Security_Policy_Options = {
     'default-src': ["'self'"],
     'base-uri': ["'self'"],
-    'block-all-mixed-content': [],
     'font-src': ["'self'", 'https:', 'data:'],
     'frame-ancestors': ["'self'"],
     'img-src': ["'self'", 'data:'],
@@ -59,6 +58,10 @@ VALID_CSP_DIRECTIVES = [
     'base-uri', 'sandbox', 'form-action', 'frame-ancestors', 'report-uri', 'report-to',
     'block-all-mixed-content', 'require-trusted-types-for', 'trusted-types',
     'upgrade-insecure-requests', 'fenced-frame-src'
+]
+
+DEPRECATED_CSP_DIRECTIVES = [
+    'block-all-mixed-content' # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/block-all-mixed-content
 ]
 
 def Content_Security_Policy(
@@ -97,9 +100,17 @@ def Content_Security_Policy(
         >>> Content_Security_Policy(app, options={'default-src': ["'self'"], 'script-src': ["'self'", 'https://apis.google.com']})
         (b'Content-Security-Policy', b"default-src 'self'; script-src 'self' https://apis.google.com")
     """
-    if set(options.keys()).difference(VALID_CSP_DIRECTIVES):
-        invalid_keys = set(options.keys()).difference(VALID_CSP_DIRECTIVES)
+    key_set = set(options.keys())
+
+    invalid_keys = key_set.difference(VALID_CSP_DIRECTIVES)
+
+    if invalid_keys:
         raise ValueError(f"Invalid option(s) for Content-Security-Policy: {', '.join(invalid_keys)}")
+
+    deprecated_keys = key_set.intersection(DEPRECATED_CSP_DIRECTIVES)
+
+    if deprecated_keys:
+        warn(f"Deprecated option(s) for Content-Security-Policy: {', '.join(deprecated_keys)}")
 
     if report_only:
         if 'report-to' not in options and 'report-uri' not in options:
